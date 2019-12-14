@@ -10,6 +10,7 @@ namespace AdventOfCode2019
             Console.WriteLine("---Welcome to erjicle's solutions to Advent of Code 2019!!---");
             // Day 1
             Console.WriteLine($"Day 1 - Part 1: {Day1.GetDay1Part1Answer()}");
+            Console.WriteLine($"Day 1 - Part 2: {Day1.GetDay1Part2Answer()}");
         }
     }
 }
