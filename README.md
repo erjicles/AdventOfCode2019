@@ -114,3 +114,6 @@ Once the program has halted, its output is available at address 0, also just lik
 Find the input noun and verb that cause the program to produce the output 19690720. What is 100 * noun + verb? (For example, if noun=12 and verb=2, the answer would be 1202.)
 
 Your puzzle answer was 2254.
+
+## Day 3
+
