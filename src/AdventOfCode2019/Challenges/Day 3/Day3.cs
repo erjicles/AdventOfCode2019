@@ -20,6 +20,15 @@ namespace AdventOfCode2019.Challenges.Day_3
             var path2 = GeneratePath(path2Instructions);
             return GetClosestIntersectionToOriginManhattanDistance(path1, path2);
         }
+        public static int GetDay3Part2Answer()
+        {
+            // What is the fewest combined steps the wires must take to reach an intersection?
+            // Answer: 20286
+            GetDay3Input(out string[] path1Instructions, out string[] path2Instructions);
+            var path1 = GeneratePath(path1Instructions);
+            var path2 = GeneratePath(path2Instructions);
+            return GetMinimalIntersectionTotalSteps(path1, path2);
+        }
         public static int GetClosestIntersectionToOriginManhattanDistance(GridPoint[] path1, GridPoint[] path2)
         {
             var intersections = GetIntersections(path1, path2);
@@ -31,6 +40,30 @@ namespace AdventOfCode2019.Challenges.Day_3
                     shortestDistance = distance;
             }
             return shortestDistance;
+        }
+        public static int GetMinimalIntersectionTotalSteps(GridPoint[] path1, GridPoint[] path2)
+        {
+            var intersections = GetIntersections(path1, path2);
+            int shortestTotalSteps = int.MaxValue;
+            foreach (var intersection in intersections)
+            {
+                var stepsPath1 = GetStepsToPoint(path1, intersection);
+                var stepsPath2 = GetStepsToPoint(path2, intersection);
+                var totalSteps = stepsPath1 + stepsPath2;
+                if (totalSteps < shortestTotalSteps)
+                    shortestTotalSteps = totalSteps;
+            }
+            return shortestTotalSteps;
+        }
+        public static int GetStepsToPoint(GridPoint[] path1, GridPoint point)
+        {
+            int steps = 0;
+            for (steps = 0; steps < path1.Length; steps++)
+            {
+                if (path1[steps].Equals(point))
+                    break;
+            }
+            return steps;
         }
         public static GridPoint[] GetIntersections(GridPoint[] path1, GridPoint[] path2)
         {
