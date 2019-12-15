@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day2Testcs
+    public class Day2Test
     {
         
 
