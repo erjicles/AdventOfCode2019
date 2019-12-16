@@ -28,6 +28,19 @@ namespace AdventOfCode2019.Intcode
                     result[result[position + 3]] = val1 * val2;
                     position += 4;
                 }
+                else if (opcode == 3)
+                {
+                    int input = 0;
+                    int storePosition = result[position + 1];
+                    result[storePosition] = input;
+                    position += 2;
+                }
+                else if (opcode == 4)
+                {
+                    int outputPosition = result[position + 1];
+                    int output = result[outputPosition];
+                    position += 2;
+                }
                 else if (opcode != 99)
                 {
                     throw new Exception($"Invalid opcode {result[position]} at position {position}");
