@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 #nullable enable
 
-namespace AdventOfCode2019.Challenges.Day_3
+namespace AdventOfCode2019.Challenges.Day3
 {
     public static class Day3
     {

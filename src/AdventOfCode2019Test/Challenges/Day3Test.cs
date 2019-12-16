@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges.Day_3;
+﻿using AdventOfCode2019.Challenges.Day3;
 using System;
 using System.Collections.Generic;
 using System.Text;
