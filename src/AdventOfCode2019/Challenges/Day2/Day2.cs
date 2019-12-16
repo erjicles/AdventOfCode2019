@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using AdventOfCode2019.Intcode;
 
 namespace AdventOfCode2019.Challenges.Day2
 {
@@ -27,7 +28,7 @@ namespace AdventOfCode2019.Challenges.Day2
             var program = GetDay2Input();
             program[1] = 12;
             program[2] = 2;
-            var result = RunProgram(program);
+            var result = IntcodeComputer.RunProgram(program);
             return result[0];
         }
 
@@ -59,7 +60,7 @@ namespace AdventOfCode2019.Challenges.Day2
                 {
                     initialProgram[1] = noun;
                     initialProgram[2] = verb;
-                    var result = RunProgram(initialProgram);
+                    var result = IntcodeComputer.RunProgram(initialProgram);
                     if (result[0] == 19690720)
                     {
                         foundResult = true;
@@ -72,35 +73,7 @@ namespace AdventOfCode2019.Challenges.Day2
             return (100 * noun) + verb;
         }
 
-        public static int[] RunProgram(int[] program)
-        {
-            var result = new int[program.Length];
-            Array.Copy(program, result, program.Length);
-            int position = 0;
-            while (result[position] != 99)
-            {
-                var opcode = result[position];
-                if (opcode == 1)
-                {
-                    var val1 = result[result[position + 1]];
-                    var val2 = result[result[position + 2]];
-                    result[result[position + 3]] = val1 + val2;
-                    position += 4;
-                }
-                else if (opcode == 2)
-                {
-                    var val1 = result[result[position + 1]];
-                    var val2 = result[result[position + 2]];
-                    result[result[position + 3]] = val1 * val2;
-                    position += 4;
-                }
-                else if (opcode != 99)
-                {
-                    throw new Exception($"Invalid opcode {result[position]} at position {position}");
-                }
-            }
-            return result;
-        }
+        
 
         public static int[] GetDay2Input()
         {
