@@ -71,19 +71,12 @@ namespace AdventOfCode2019.Challenges.Day2
                     break;
             }
             return (100 * noun) + verb;
-        }
-
-        
+        }  
 
         public static int[] GetDay2Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
-            if (!File.Exists(filePath))
-            {
-                throw new Exception($"Cannot locate file {filePath}");
-            }
-            var inputText = File.ReadAllText(filePath);
-            return inputText.Split(",").Select(v => int.Parse(v)).ToArray();
+            return IntcodeComputer.ReadProgramFromFile(filePath);
         }
     }
 }
