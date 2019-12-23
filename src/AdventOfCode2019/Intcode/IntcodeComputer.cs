@@ -12,8 +12,8 @@ namespace AdventOfCode2019.Intcode
         private readonly IOutputListener _outputListener;
         public IntcodeComputer()
         {
-            _inputProvider = new InputProvider();
-            _outputListener = new OutputListener();
+            _inputProvider = new ConsoleInputProvider();
+            _outputListener = new ConsoleOutputListener();
         }
 
         public IntcodeComputer(IInputProvider inputProvider, IOutputListener outputListener)

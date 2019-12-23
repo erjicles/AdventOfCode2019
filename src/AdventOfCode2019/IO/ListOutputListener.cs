@@ -4,11 +4,13 @@ using System.Text;
 
 namespace AdventOfCode2019.Intcode
 {
-    public class OutputListener : IOutputListener
+    public class ListOutputListener : IOutputListener
     {
+        public List<int> Values = new List<int>();
+
         public void SendOutput(int value)
         {
-            Console.WriteLine($"---->Output value: {value}");
+            Values.Add(value);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AdventOfCode2019.Intcode
 {
-    public class InputProvider : IInputProvider
+    public class ConsoleInputProvider : IInputProvider
     {
         public int GetUserInput()
         {

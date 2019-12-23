@@ -69,30 +69,6 @@ namespace AdventOfCode2019Test.Intcode
             }
         }
 
-        public class InputProviderTest : IInputProvider
-        {
-            private readonly int _value;
-            public InputProviderTest(int value)
-            {
-                _value = value;
-            }
-
-            public int GetUserInput()
-            {
-                return _value;
-            }
-        }
-
-        public class OutputListenerTest: IOutputListener
-        {
-            public List<int> Values = new List<int>();
-
-            public void SendOutput(int value)
-            {
-                Values.Add(value);
-            }
-        }
-
         [Fact]
         public void RunProgramComparisonTests()
         {
@@ -118,8 +94,8 @@ namespace AdventOfCode2019Test.Intcode
 
             foreach (var testExample in testData)
             {
-                var inputProvider = new InputProviderTest(testExample.Item2);
-                var outputListener = new OutputListenerTest();
+                var inputProvider = new StaticValueInputProvider(testExample.Item2);
+                var outputListener = new ListOutputListener();
                 var computer = new IntcodeComputer(inputProvider, outputListener);
                 var result = computer.RunProgram(testExample.Item1);
                 Assert.True(outputListener.Values.Count > 0);
@@ -153,8 +129,8 @@ namespace AdventOfCode2019Test.Intcode
 
             foreach (var testExample in testData)
             {
-                var inputProvider = new InputProviderTest(testExample.Item2);
-                var outputListener = new OutputListenerTest();
+                var inputProvider = new StaticValueInputProvider(testExample.Item2);
+                var outputListener = new ListOutputListener();
                 var computer = new IntcodeComputer(inputProvider, outputListener);
                 var result = computer.RunProgram(testExample.Item1);
                 Assert.True(outputListener.Values.Count > 0);

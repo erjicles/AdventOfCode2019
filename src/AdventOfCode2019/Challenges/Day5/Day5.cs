@@ -21,7 +21,7 @@ namespace AdventOfCode2019.Challenges.Day5
             // Answer: Diagnostic value output: 12896948
             var program = GetDay5Input();
             Console.WriteLine("----> When prompted, enter 1");
-            var computer = new IntcodeComputer();
+            var computer = new IntcodeComputer(new StaticValueInputProvider(1), new ConsoleOutputListener());
             computer.RunProgram(program);
         }
 
@@ -31,7 +31,7 @@ namespace AdventOfCode2019.Challenges.Day5
             // Answer: Diagnostic value output: 7704130
             var program = GetDay5Input();
             Console.WriteLine("----> When prompted, enter 5");
-            var computer = new IntcodeComputer();
+            var computer = new IntcodeComputer(new StaticValueInputProvider(5), new ConsoleOutputListener());
             computer.RunProgram(program);
         }
 
