@@ -6,8 +6,22 @@ using System.Text;
 
 namespace AdventOfCode2019.Intcode
 {
-    public static class IntcodeComputer
+    public class IntcodeComputer
     {
+        private readonly IInputProvider _inputProvider;
+        private readonly IOutputListener _outputListener;
+        public IntcodeComputer()
+        {
+            _inputProvider = new InputProvider();
+            _outputListener = new OutputListener();
+        }
+
+        public IntcodeComputer(IInputProvider inputProvider, IOutputListener outputListener)
+        {
+            _inputProvider = inputProvider;
+            _outputListener = outputListener;
+        }
+
         /// <summary>
         /// Parses a command (containing the opcode and parameter modes), 
         /// and returns these separately as an array.
@@ -89,27 +103,7 @@ namespace AdventOfCode2019.Intcode
             }
         }
 
-        public static int GetUserInput()
-        {
-            bool isValidInput = false;
-            while (!isValidInput)
-            {
-                Console.WriteLine("---->Please input an integer:");
-                var userInput = Console.ReadLine();
-                if (int.TryParse(userInput, out int result))
-                {
-                    isValidInput = true;
-                    return result;
-                }
-                else
-                {
-                    Console.WriteLine($"Invalid user input: {userInput}");
-                }
-            }
-            throw new Exception("This code should never be reached");
-        }
-
-        public static int[] RunProgram(int[] inputProgram)
+        public int[] RunProgram(int[] inputProgram)
         {
             var result = new int[inputProgram.Length];
             Array.Copy(inputProgram, result, inputProgram.Length);
@@ -136,16 +130,76 @@ namespace AdventOfCode2019.Intcode
                 }
                 else if (opcode == 3)
                 {
-                    int input = GetUserInput();
+                    // Take user input, and store in the parameter location
+                    int input = _inputProvider.GetUserInput();
                     int storePosition = result[position + 1];
                     result[storePosition] = input;
                     position += 2;
                 }
                 else if (opcode == 4)
                 {
+                    // Output a value
                     var val1 = GetParameterValue(position + 1, 1, parsedCommand, result);
-                    Console.WriteLine($"---->Output value: {val1}");
+                    _outputListener.SendOutput(val1);
                     position += 2;
+                }
+                else if (opcode == 5)
+                {
+                    // Opcode 5 is jump-if-true: if the first parameter is 
+                    // non-zero, it sets the instruction pointer to the value 
+                    // from the second parameter. Otherwise, it does nothing.
+                    var val1 = GetParameterValue(position + 1, 1, parsedCommand, result);
+                    var val2 = GetParameterValue(position + 2, 2, parsedCommand, result);
+                    if (val1 != 0)
+                    {
+                        position = val2;
+                    }
+                    else
+                    {
+                        position += 3;
+                    }
+                }
+                else if (opcode == 6)
+                {
+                    // Opcode 6 is jump-if-false: if the first parameter is 
+                    // zero, it sets the instruction pointer to the value from 
+                    // the second parameter. Otherwise, it does nothing.
+                    var val1 = GetParameterValue(position + 1, 1, parsedCommand, result);
+                    var val2 = GetParameterValue(position + 2, 2, parsedCommand, result);
+                    if (val1 == 0)
+                    {
+                        position = val2;
+                    }
+                    else
+                    {
+                        position += 3;
+                    }
+                }
+                else if (opcode == 7)
+                {
+                    // Opcode 7 is less than: if the first parameter is less 
+                    // than the second parameter, it stores 1 in the position 
+                    // given by the third parameter. 
+                    // Otherwise, it stores 0.
+                    var val1 = GetParameterValue(position + 1, 1, parsedCommand, result);
+                    var val2 = GetParameterValue(position + 2, 2, parsedCommand, result);
+                    var val3 = result[position + 3];
+                    var valToStore = val1 < val2 ? 1 : 0;
+                    result[val3] = valToStore;
+                    position += 4;
+                }
+                else if (opcode == 8)
+                {
+                    // Opcode 8 is equals: if the first parameter is equal to 
+                    // the second parameter, it stores 1 in the position given 
+                    // by the third parameter.
+                    // Otherwise, it stores 0.
+                    var val1 = GetParameterValue(position + 1, 1, parsedCommand, result);
+                    var val2 = GetParameterValue(position + 2, 2, parsedCommand, result);
+                    var val3 = result[position + 3];
+                    var valToStore = val1 == val2 ? 1 : 0;
+                    result[val3] = valToStore;
+                    position += 4;
                 }
                 else if (opcode != 99)
                 {

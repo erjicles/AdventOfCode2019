@@ -28,7 +28,8 @@ namespace AdventOfCode2019.Challenges.Day2
             var program = GetDay2Input();
             program[1] = 12;
             program[2] = 2;
-            var result = IntcodeComputer.RunProgram(program);
+            var computer = new IntcodeComputer();
+            var result = computer.RunProgram(program);
             return result[0];
         }
 
@@ -60,7 +61,8 @@ namespace AdventOfCode2019.Challenges.Day2
                 {
                     initialProgram[1] = noun;
                     initialProgram[2] = verb;
-                    var result = IntcodeComputer.RunProgram(initialProgram);
+                    var computer = new IntcodeComputer();
+                    var result = computer.RunProgram(initialProgram);
                     if (result[0] == 19690720)
                     {
                         foundResult = true;

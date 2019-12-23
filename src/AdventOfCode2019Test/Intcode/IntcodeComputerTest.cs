@@ -63,8 +63,102 @@ namespace AdventOfCode2019Test.Intcode
 
             foreach (var testExample in testData)
             {
-                var result = IntcodeComputer.RunProgram(testExample.Item1);
+                var computer = new IntcodeComputer();
+                var result = computer.RunProgram(testExample.Item1);
                 Assert.Equal(testExample.Item2, result);
+            }
+        }
+
+        public class InputProviderTest : IInputProvider
+        {
+            private readonly int _value;
+            public InputProviderTest(int value)
+            {
+                _value = value;
+            }
+
+            public int GetUserInput()
+            {
+                return _value;
+            }
+        }
+
+        public class OutputListenerTest: IOutputListener
+        {
+            public List<int> Values = new List<int>();
+
+            public void SendOutput(int value)
+            {
+                Values.Add(value);
+            }
+        }
+
+        [Fact]
+        public void RunProgramComparisonTests()
+        {
+            // https://adventofcode.com/2019/day/5
+            // 3,9,8,9,10,9,4,9,99,-1,8 - Using position mode, consider whether the input is equal to 8; output 1 (if it is) or 0 (if it is not).
+            // 3,9,7,9,10,9,4,9,99,-1,8 - Using position mode, consider whether the input is less than 8; output 1(if it is) or 0(if it is not).
+            // 3,3,1108,-1,8,3,4,3,99 - Using immediate mode, consider whether the input is equal to 8; output 1(if it is) or 0(if it is not).
+            // 3,3,1107,-1,8,3,4,3,99 - Using immediate mode, consider whether the input is less than 8; output 1(if it is) or 0(if it is not).
+            var testData = new List<Tuple<int[], int, int>>(new Tuple<int[], int, int>[] {
+                new Tuple<int[], int, int>(new int[] { 3,9,8,9,10,9,4,9,99,-1,8 }, 7, 0),
+                new Tuple<int[], int, int>(new int[] { 3,9,8,9,10,9,4,9,99,-1,8 }, 8, 1),
+                new Tuple<int[], int, int>(new int[] { 3,9,8,9,10,9,4,9,99,-1,8 }, 9, 0),
+                new Tuple<int[], int, int>(new int[] { 3,9,7,9,10,9,4,9,99,-1,8 }, 7, 1),
+                new Tuple<int[], int, int>(new int[] { 3,9,7,9,10,9,4,9,99,-1,8 }, 8, 0),
+                new Tuple<int[], int, int>(new int[] { 3,9,7,9,10,9,4,9,99,-1,8 }, 9, 0),
+                new Tuple<int[], int, int>(new int[] { 3,3,1108,-1,8,3,4,3,99 }, 7, 0),
+                new Tuple<int[], int, int>(new int[] { 3,3,1108,-1,8,3,4,3,99 }, 8, 1),
+                new Tuple<int[], int, int>(new int[] { 3,3,1108,-1,8,3,4,3,99 }, 9, 0),
+                new Tuple<int[], int, int>(new int[] { 3,3,1107,-1,8,3,4,3,99 }, 7, 1),
+                new Tuple<int[], int, int>(new int[] { 3,3,1107,-1,8,3,4,3,99 }, 8, 0),
+                new Tuple<int[], int, int>(new int[] { 3,3,1107,-1,8,3,4,3,99 }, 9, 0),
+            });
+
+            foreach (var testExample in testData)
+            {
+                var inputProvider = new InputProviderTest(testExample.Item2);
+                var outputListener = new OutputListenerTest();
+                var computer = new IntcodeComputer(inputProvider, outputListener);
+                var result = computer.RunProgram(testExample.Item1);
+                Assert.True(outputListener.Values.Count > 0);
+                Assert.Equal(testExample.Item3, outputListener.Values[outputListener.Values.Count - 1]);
+            }
+        }
+
+        [Fact]
+        public void RunProgramJumpTests()
+        {
+            // https://adventofcode.com/2019/day/5
+            // Here are some jump tests that take an input, then output 0 if the input was zero or 1 if the input was non-zero:
+            // 3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9(using position mode)
+            // 3,3,1105,-1,9,1101,0,0,12,4,12,99,1(using immediate mode)
+            // The following example program uses an input instruction to ask 
+            // for a single number. The program will then output 999 if the 
+            // input value is below 8, output 1000 if the input value is equal 
+            // to 8, or output 1001 if the input value is greater than 8.
+            // 3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99
+            var testData = new List<Tuple<int[], int, int>>(new Tuple<int[], int, int>[] {
+                new Tuple<int[], int, int>(new int[] { 3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9 }, -1, 1),
+                new Tuple<int[], int, int>(new int[] { 3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9 }, 0, 0),
+                new Tuple<int[], int, int>(new int[] { 3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9 }, 1, 1),
+                new Tuple<int[], int, int>(new int[] { 3,3,1105,-1,9,1101,0,0,12,4,12,99,1 }, -1, 1),
+                new Tuple<int[], int, int>(new int[] { 3,3,1105,-1,9,1101,0,0,12,4,12,99,1 }, 0, 0),
+                new Tuple<int[], int, int>(new int[] { 3,3,1105,-1,9,1101,0,0,12,4,12,99,1 }, 1, 1),
+                new Tuple<int[], int, int>(new int[] { 3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99 }, 7, 999),
+                new Tuple<int[], int, int>(new int[] { 3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99 }, 8, 1000),
+                new Tuple<int[], int, int>(new int[] { 3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99 }, 9, 1001)
+            });
+
+            foreach (var testExample in testData)
+            {
+                var inputProvider = new InputProviderTest(testExample.Item2);
+                var outputListener = new OutputListenerTest();
+                var computer = new IntcodeComputer(inputProvider, outputListener);
+                var result = computer.RunProgram(testExample.Item1);
+                Assert.True(outputListener.Values.Count > 0);
+                Assert.Equal(testExample.Item3, outputListener.Values[outputListener.Values.Count - 1]);
             }
         }
     }
