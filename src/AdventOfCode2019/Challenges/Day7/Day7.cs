@@ -35,6 +35,8 @@ namespace AdventOfCode2019.Challenges.Day7
             // Try every combination of the new phase settings on the amplifier 
             // feedback loop. What is the highest signal that can be sent to 
             // the thrusters?
+            // Clarification on problem instructions found here:
+            // https://old.reddit.com/r/adventofcode/comments/e7aqcb/2019_day_7_part_2_confused_with_the_question/
             // Answer: 84088865
             var program = GetDay7Input();
             return GetMaximumAmplifierOutput(
