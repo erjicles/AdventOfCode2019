@@ -91,5 +91,21 @@ namespace AdventOfCode2019Test.Challenges
                 Assert.Equal(testExample.Item3, result);
             }
         }
+
+        [Fact]
+        public void GetDay3Part1AnswerTest()
+        {
+            int expected = 227;
+            int actual = Day3.GetDay3Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay3Part2AnswerTest()
+        {
+            int expected = 20286;
+            int actual = Day3.GetDay3Part2Answer();
+            Assert.Equal(expected, actual);
+        }
     }
 }

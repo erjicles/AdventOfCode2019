@@ -47,5 +47,21 @@ namespace AdventOfCode2019Test.Challenges
             }
         }
 
+        [Fact]
+        public void GetDay7Part1AnswerTest()
+        {
+            int expected = 255840;
+            int actual = Day7.GetDay7Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay7Part2AnswerTest()
+        {
+            int expected = 84088865;
+            int actual = Day7.GetDay7Part2Answer();
+            Assert.Equal(expected, actual);
+        }
+
     }
 }

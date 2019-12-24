@@ -35,7 +35,7 @@ namespace AdventOfCode2019.Challenges.Day8
             return result;
         }
 
-        public static void RunDay8Part2()
+        public static IList<int> RunDay8Part2()
         {
             // What message is produced after decoding your image?
             // Answer: RKHRY
@@ -56,6 +56,7 @@ namespace AdventOfCode2019.Challenges.Day8
                 Console.WriteLine();
             }
             Console.WriteLine();
+            return decodedImage;
         }
 
         public static IList<int> DecodeLayersIntoFinalImage(IList<IList<int>> layers)

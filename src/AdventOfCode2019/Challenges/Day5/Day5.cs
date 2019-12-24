@@ -16,26 +16,28 @@ namespace AdventOfCode2019.Challenges.Day5
     {
         public const string FILE_NAME = "Day5Input.txt";
 
-        public static void RunDay5Part1()
+        public static ConsoleOutputListener RunDay5Part1()
         {
             // Input 1, output final value
             // Answer: Diagnostic value output: 12896948
             var program = GetDay5Input();
-            Console.WriteLine("----> When prompted, enter 1");
-            var computer = new IntcodeComputer(new StaticValueInputProvider(1), new ConsoleOutputListener());
+            var outputListener = new ConsoleOutputListener();
+            var computer = new IntcodeComputer(new StaticValueInputProvider(1), outputListener);
             computer.LoadProgram(program);
             computer.RunProgram();
+            return outputListener;
         }
 
-        public static void RunDay5Part2()
+        public static ConsoleOutputListener RunDay5Part2()
         {
             // Input 5, output final value
             // Answer: Diagnostic value output: 7704130
             var program = GetDay5Input();
-            Console.WriteLine("----> When prompted, enter 5");
-            var computer = new IntcodeComputer(new StaticValueInputProvider(5), new ConsoleOutputListener());
+            var outputListener = new ConsoleOutputListener();
+            var computer = new IntcodeComputer(new StaticValueInputProvider(5), outputListener);
             computer.LoadProgram(program);
             computer.RunProgram();
+            return outputListener;
         }
 
         public static int[] GetDay5Input()

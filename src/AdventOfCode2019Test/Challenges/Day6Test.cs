@@ -107,5 +107,21 @@ namespace AdventOfCode2019Test.Challenges
                 Assert.Equal(testExample.Item2, numberOfOrbits);
             }
         }
+
+        [Fact]
+        public void GetDay6Part1AnswerTest()
+        {
+            int expected = 261306;
+            int actual = Day6.GetDay6Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay6Part2AnswerTest()
+        {
+            int expected = 382;
+            int actual = Day6.GetDay6Part2Answer();
+            Assert.Equal(expected, actual);
+        }
     }
 }
