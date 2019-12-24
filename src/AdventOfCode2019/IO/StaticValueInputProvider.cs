@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.IO
 {
     public class StaticValueInputProvider : IInputProvider
     {
-        private readonly int[] _values = new int[] { };
+        private readonly BigInteger[] _values = new BigInteger[] { };
         private int _valueIndex = 0;
-        public StaticValueInputProvider(int value)
+        public StaticValueInputProvider(BigInteger value)
         {
-            _values = new int[] { value };
+            _values = new BigInteger[] { value };
         }
-        public StaticValueInputProvider(int[] values)
+        public StaticValueInputProvider(BigInteger[] values)
         {
-            _values = new int[values.Length];
+            _values = new BigInteger[values.Length];
             Array.Copy(values, _values, values.Length);
         }
 
-        public int GetInput()
+        public BigInteger GetInput()
         {
             if (_values == null || _values.Length == 0)
                 throw new Exception("No values defined");

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.Challenges.Day5
@@ -40,7 +41,7 @@ namespace AdventOfCode2019.Challenges.Day5
             return outputListener;
         }
 
-        public static int[] GetDay5Input()
+        public static BigInteger[] GetDay5Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);

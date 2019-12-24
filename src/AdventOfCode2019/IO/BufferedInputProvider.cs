@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.IO
 {
     public class BufferedInputProvider : IBufferedInputProvider
     {
-        private IList<int> _values = new List<int>();
+        private IList<BigInteger> _values = new List<BigInteger>();
         private int _valueIndex = 0;
 
-        public void AddInputValue(int value)
+        public void AddInputValue(BigInteger value)
         {
             _values.Add(value);
         }
 
-        public int GetInput()
+        public BigInteger GetInput()
         {
             if (_values == null || _values.Count == 0)
                 throw new Exception("No values defined");

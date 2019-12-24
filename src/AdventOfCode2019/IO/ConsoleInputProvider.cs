@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.IO
 {
     public class ConsoleInputProvider : IInputProvider
     {
-        public int GetInput()
+        public BigInteger GetInput()
         {
             bool isValidInput = false;
             while (!isValidInput)
             {
                 Console.WriteLine("---->Please input an integer:");
                 var userInput = Console.ReadLine();
-                if (int.TryParse(userInput, out int result))
+                if (BigInteger.TryParse(userInput, out BigInteger result))
                 {
                     isValidInput = true;
                     return result;

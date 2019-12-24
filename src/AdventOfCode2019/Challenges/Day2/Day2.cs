@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using AdventOfCode2019.Intcode;
 
@@ -15,7 +16,7 @@ namespace AdventOfCode2019.Challenges.Day2
     {
         public const string FILE_NAME = "Day2Input.txt";
 
-        public static int GetDay2Part1Answer()
+        public static BigInteger GetDay2Part1Answer()
         {
             // Once you have a working computer, the first step is to restore 
             // the gravity assist program (your puzzle input) to the "1202 
@@ -78,7 +79,7 @@ namespace AdventOfCode2019.Challenges.Day2
             return (100 * noun) + verb;
         }  
 
-        public static int[] GetDay2Input()
+        public static BigInteger[] GetDay2Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.Challenges.Day7
@@ -49,7 +50,7 @@ namespace AdventOfCode2019.Challenges.Day7
         public static int GetMaximumAmplifierOutput(
             int initialInput,
             int numberOfAmplifiers,
-            int[] program,
+            BigInteger[] program,
             FeedbackMode feedbackMode)
         {
             int maxOutput = int.MinValue;
@@ -86,7 +87,7 @@ namespace AdventOfCode2019.Challenges.Day7
         public static int GetAmplifierOutput(
             int initialInput, 
             int[] phaseSettings, 
-            int[] program,
+            BigInteger[] program,
             FeedbackMode feedbackMode)
         {
             // Initialize the amplifiers
@@ -111,7 +112,7 @@ namespace AdventOfCode2019.Challenges.Day7
 
             int currentAmplifierIndex = 0;
             int round = 1;
-            int output;
+            BigInteger output;
             while (true)
             {
                 var currentAmplifier = amplifiers[currentAmplifierIndex];
@@ -156,10 +157,10 @@ namespace AdventOfCode2019.Challenges.Day7
                 }
             }
 
-            return output;
+            return (int)output;
         }
 
-        public static int[] GetDay7Input()
+        public static BigInteger[] GetDay7Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);

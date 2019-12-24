@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace AdventOfCode2019.Intcode
@@ -11,8 +12,10 @@ namespace AdventOfCode2019.Intcode
     {
         private readonly IInputProvider _inputProvider;
         private readonly IOutputListener _outputListener;
-        private int[] _program;
+        private IList<BigInteger> _program;
         private int _position;
+        private int _relativeBase = 0;
+        public bool IsDebugMode { get; set; } = false;
         public IntcodeComputer()
         {
             _inputProvider = new ConsoleInputProvider();
@@ -25,25 +28,34 @@ namespace AdventOfCode2019.Intcode
             _outputListener = outputListener;
         }
 
-        public void LoadProgram(int[] inputProgram)
+        public void LoadProgram(IList<BigInteger> inputProgram)
         {
             LoadProgram(inputProgram, 0);
         }
 
-        public void LoadProgram(int[] inputProgram, int position)
+        public void LoadProgram(int[] inputProgram)
         {
-            _program = new int[inputProgram.Length];
-            Array.Copy(inputProgram, _program, inputProgram.Length);
-            _position = position;
+            var program = inputProgram.Select(d => (BigInteger)d).ToList();
+            LoadProgram(program, 0);
         }
 
-        public int[] GetProgramCopy()
+        public void LoadProgram(IList<BigInteger> inputProgram, int initialPosition)
+        {
+            LoadProgram(inputProgram, initialPosition, 0);
+        }
+
+        public void LoadProgram(IList<BigInteger> inputProgram, int initialPosition, int initialRelativeBase)
+        {
+            _program = inputProgram.ToList();
+            _position = initialPosition;
+            _relativeBase = initialRelativeBase;
+        }
+
+        public IList<BigInteger> GetProgramCopy()
         {
             if (_program == null)
                 return null;
-            var programCopy = new int[_program.Length];
-            Array.Copy(_program, programCopy, _program.Length);
-            return programCopy;
+            return _program.ToList();
         }
 
         public IntcodeProgramStatus RunProgram()
@@ -51,22 +63,25 @@ namespace AdventOfCode2019.Intcode
             IntcodeProgramStatus status = IntcodeProgramStatus.Running;
             while (true)
             {
+                LogDebugMessage($"Pos: {_position.ToString("0000")}, Cmd: {_program[_position]}");
                 var parsedCommand = ParseCommand(_program[_position]);
                 var opcode = parsedCommand[0];
                 if (opcode == 1)
                 {
-                    // Add param1 + param2, store in param3
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
-                    _program[_program[_position + 3]] = val1 + val2;
+                    // Add param1 + param2, store in address pointed to by param3
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
+                    var val3 = GetParameterWritePosition(_position + 3, 3, parsedCommand);
+                    SetMemoryValue(val3, val1 + val2);
                     _position += 4;
                 }
                 else if (opcode == 2)
                 {
-                    // Multiply param1 * param2, store in param3
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
-                    _program[_program[_position + 3]] = val1 * val2;
+                    // Multiply param1 * param2, store in address pointed to by param3
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
+                    var val3 = GetParameterWritePosition(_position + 3, 3, parsedCommand);
+                    SetMemoryValue(val3, val1 * val2);
                     _position += 4;
                 }
                 else if (opcode == 3)
@@ -79,15 +94,15 @@ namespace AdventOfCode2019.Intcode
                         status = IntcodeProgramStatus.AwaitingInput;
                         break;
                     }
-                    int input = _inputProvider.GetInput();
-                    int storePosition = _program[_position + 1];
-                    _program[storePosition] = input;
+                    BigInteger input = _inputProvider.GetInput();
+                    var val1 = GetParameterWritePosition(_position + 1, 1, parsedCommand);
+                    SetMemoryValue(val1, input);
                     _position += 2;
                 }
                 else if (opcode == 4)
                 {
                     // Output a value
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
                     _outputListener.SendOutput(val1);
                     _position += 2;
                 }
@@ -96,11 +111,11 @@ namespace AdventOfCode2019.Intcode
                     // Opcode 5 is jump-if-true: if the first parameter is 
                     // non-zero, it sets the instruction pointer to the value 
                     // from the second parameter. Otherwise, it does nothing.
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
                     if (val1 != 0)
                     {
-                        _position = val2;
+                        _position = GetMemoryAddress(val2);
                     }
                     else
                     {
@@ -112,11 +127,11 @@ namespace AdventOfCode2019.Intcode
                     // Opcode 6 is jump-if-false: if the first parameter is 
                     // zero, it sets the instruction pointer to the value from 
                     // the second parameter. Otherwise, it does nothing.
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
                     if (val1 == 0)
                     {
-                        _position = val2;
+                        _position = GetMemoryAddress(val2);
                     }
                     else
                     {
@@ -129,11 +144,11 @@ namespace AdventOfCode2019.Intcode
                     // than the second parameter, it stores 1 in the position 
                     // given by the third parameter. 
                     // Otherwise, it stores 0.
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
-                    var val3 = _program[_position + 3];
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
+                    var val3 = GetParameterWritePosition(_position + 3, 3, parsedCommand);
                     var valToStore = val1 < val2 ? 1 : 0;
-                    _program[val3] = valToStore;
+                    SetMemoryValue(val3, valToStore);
                     _position += 4;
                 }
                 else if (opcode == 8)
@@ -142,12 +157,26 @@ namespace AdventOfCode2019.Intcode
                     // the second parameter, it stores 1 in the position given 
                     // by the third parameter.
                     // Otherwise, it stores 0.
-                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand, _program);
-                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand, _program);
-                    var val3 = _program[_position + 3];
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    var val2 = GetParameterValue(_position + 2, 2, parsedCommand);
+                    var val3 = GetParameterWritePosition(_position + 3, 3, parsedCommand);
                     var valToStore = val1 == val2 ? 1 : 0;
-                    _program[val3] = valToStore;
+                    SetMemoryValue(val3, valToStore);
                     _position += 4;
+                }
+                else if (opcode == 9)
+                {
+                    // Opcode 9 adjusts the relative base by the value of its 
+                    // only parameter. The relative base increases (or 
+                    // decreases, if the value is negative) by the value of the 
+                    // parameter.
+                    // For example, if the relative base is 2000, then after 
+                    // the instruction 109,19, the relative base would be 2019. 
+                    // If the next instruction were 204,-34, then the value at 
+                    // address 1985 would be output.
+                    var val1 = GetParameterValue(_position + 1, 1, parsedCommand);
+                    _relativeBase += GetMemoryAddress(val1);
+                    _position += 2;
                 }
                 else if (opcode == 99)
                 {
@@ -170,13 +199,13 @@ namespace AdventOfCode2019.Intcode
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public static int[] ParseCommand(int command)
+        public static BigInteger[] ParseCommand(BigInteger command)
         {
             var commandString = command.ToString();
             if (commandString.Length == 1
                 || commandString.Length == 2)
             {
-                return new int[] { command };
+                return new BigInteger[] { command };
             }
             else if (commandString.Length > 2)
             {
@@ -190,7 +219,7 @@ namespace AdventOfCode2019.Intcode
                 // parameter's mode is in the thousands digit, the third 
                 // parameter's mode is in the ten-thousands digit, and so on. 
                 // Any missing modes are 0.
-                var result = new List<int>();
+                var result = new List<BigInteger>();
                 result.Add(int.Parse(commandString.Substring(commandString.Length - 2, 2)));
                 for (int i = commandString.Length - 3; i >= 0; i--)
                 {
@@ -201,18 +230,39 @@ namespace AdventOfCode2019.Intcode
             throw new Exception($"Invalid command {command}");
         }
 
-        public static int GetParameterMode(int parameterNumber, int[] parsedCommand)
+        public static BigInteger GetParameterMode(int parameterNumber, BigInteger[] parsedCommand)
         {
             if (parameterNumber >= parsedCommand.Length)
                 return 0;
             return parsedCommand[parameterNumber];
         }
 
-        public static int GetParameterValue(
+        public BigInteger GetParameterWritePosition(
             int parameterIndex,
             int parameterNumber,
-            int[] parsedCommand,
-            int[] program)
+            BigInteger[] parsedCommand)
+        {
+            var parameterMode = GetParameterMode(parameterNumber, parsedCommand);
+            if (parameterMode == 1)
+                throw new Exception("Instruction write parameter found in immediate mode");
+            if (parameterMode == 0)
+            {
+                return _program[parameterIndex];
+            }
+            else if (parameterMode == 2)
+            {
+                return _relativeBase + _program[parameterIndex];
+            }
+            else
+            {
+                throw new Exception($"Invalid parameter mode {parameterMode}");
+            }
+        }
+
+        public BigInteger GetParameterValue(
+            int parameterIndex,
+            int parameterNumber,
+            BigInteger[] parsedCommand)
         {
             // Each parameter of an instruction is handled based on its 
             // parameter mode. Right now, your ship computer already 
@@ -225,17 +275,38 @@ namespace AdventOfCode2019.Intcode
             // mode 1, immediate mode. In immediate mode, a parameter is 
             // interpreted as a value - if the parameter is 50, its value is 
             // simply 50.
+
+            // Your existing Intcode computer is missing one key feature: it 
+            // needs support for parameters in relative mode.
+            // Parameters in mode 2, relative mode, behave very similarly to 
+            // parameters in position mode: the parameter is interpreted as a 
+            // position.Like position mode, parameters in relative mode can be 
+            // read from or written to.
+            // The important difference is that relative mode parameters don't 
+            // count from address 0. Instead, they count from a value called 
+            // the relative base. The relative base starts at 0.
+            // The address a relative mode parameter refers to is itself plus 
+            // the current relative base.When the relative base is 0, relative 
+            // mode parameters and position mode parameters with the same value 
+            // refer to the same address.
+            // For example, given a relative base of 50, a relative mode 
+            // parameter of - 7 refers to memory address 50 + -7 = 43.
             var parameterMode = GetParameterMode(parameterNumber, parsedCommand);
-            var parameterValue = program[parameterIndex];
+            var parameterValue = _program[parameterIndex];
             if (parameterMode == 0)
             {
                 // Interpret as position
-                return program[parameterValue];
+                return _program[GetMemoryAddress(parameterValue)];
             }
             else if (parameterMode == 1)
             {
                 // Interpret as literal
                 return parameterValue;
+            }
+            else if (parameterMode == 2)
+            {
+                // Interpret as relative position
+                return _program[_relativeBase + GetMemoryAddress(parameterValue)];
             }
             else
             {
@@ -243,14 +314,50 @@ namespace AdventOfCode2019.Intcode
             }
         }
 
-        public static int[] ReadProgramFromFile(string filePath)
+        private void SetMemoryValue(BigInteger position, BigInteger value)
+        {
+            int memoryAddress = GetMemoryAddress(position);
+            ExpandMemoryToFitAddress(memoryAddress);
+            _program[memoryAddress] = value;
+        }
+
+        private int GetMemoryAddress(BigInteger memoryAddress)
+        {
+            if (memoryAddress > int.MaxValue)
+                throw new Exception($"BigInteger being used as memory address {memoryAddress}");
+            int position = (int)memoryAddress;
+            ExpandMemoryToFitAddress(position);
+            return position;
+        }
+
+        private void ExpandMemoryToFitAddress(int position)
+        {
+            if (position >= _program.Count)
+            {
+                for (int i = _program.Count; i <= position; i++)
+                {
+                    _program.Add(0);
+                }
+            }
+        }
+
+        // Todo: Log to external logger injected in constructor
+        private void LogDebugMessage(object obj)
+        {
+            if (IsDebugMode)
+            {
+                Console.WriteLine($"...dbug: {obj}");
+            }
+        }
+
+        public static BigInteger[] ReadProgramFromFile(string filePath)
         {
             if (!File.Exists(filePath))
             {
                 throw new Exception($"Cannot locate file {filePath}");
             }
             var inputText = File.ReadAllText(filePath);
-            return inputText.Split(",").Select(v => int.Parse(v)).ToArray();
+            return inputText.Split(",").Select(v => BigInteger.Parse(v)).ToArray();
         }
     }
 }

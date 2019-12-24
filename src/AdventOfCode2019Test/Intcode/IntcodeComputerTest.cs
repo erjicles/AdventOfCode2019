@@ -2,6 +2,8 @@
 using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Text;
 using Xunit;
 
@@ -20,7 +22,7 @@ namespace AdventOfCode2019Test.Intcode
             foreach (var testExample in testData)
             {
                 var result = IntcodeComputer.ParseCommand(testExample.Item1);
-                Assert.Equal(testExample.Item2, result);
+                Assert.Equal(testExample.Item2.Select(d => (BigInteger)d), result);
             }
         }
 
@@ -69,7 +71,7 @@ namespace AdventOfCode2019Test.Intcode
                 var programStatus = computer.RunProgram();
                 var result = computer.GetProgramCopy();
                 Assert.Equal(IntcodeProgramStatus.Completed, programStatus);
-                Assert.Equal(testExample.Item2, result);
+                Assert.Equal(testExample.Item2.Select(d => (BigInteger)d), result);
             }
         }
 
@@ -144,6 +146,41 @@ namespace AdventOfCode2019Test.Intcode
                 Assert.True(outputListener.Values.Count > 0);
                 Assert.Equal(testExample.Item3, outputListener.Values[outputListener.Values.Count - 1]);
             }
+        }
+
+        [Fact]
+        public void RunDay9Tests()
+        {
+            // Test cases taken from here:
+            // https://adventofcode.com/2019/day/9
+            // 109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 takes no input and produces a copy of itself as output.
+            var program1 = new BigInteger[] { 109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99 };
+            var outputListener1 = new ListOutputListener();
+            var computer1 = new IntcodeComputer(new ConsoleInputProvider(), outputListener1);
+            computer1.LoadProgram(program1);
+            var status1 = computer1.RunProgram();
+            Assert.Equal(IntcodeProgramStatus.Completed, status1);
+            Assert.Equal(program1, outputListener1.Values);
+
+            // 1102,34915192,34915192,7,4,7,99,0 should output a 16 - digit number.
+            var program2 = new BigInteger[] { 1102, 34915192, 34915192, 7, 4, 7, 99, 0 };
+            var outputListener2 = new ListOutputListener();
+            var computer2 = new IntcodeComputer(new ConsoleInputProvider(), outputListener2);
+            computer2.LoadProgram(program2);
+            var status2 = computer2.RunProgram();
+            Assert.Equal(IntcodeProgramStatus.Completed, status2);
+            Assert.Single(outputListener2.Values);
+            Assert.Equal(16, outputListener2.Values[0].ToString().Length);
+
+            // 104,1125899906842624,99 should output the large number in the middle.
+            var program3 = new BigInteger[] { 104, 1125899906842624, 99 };
+            var outputListener3 = new ListOutputListener();
+            var computer3 = new IntcodeComputer(new ConsoleInputProvider(), outputListener3);
+            computer3.LoadProgram(program3);
+            var status3 = computer3.RunProgram();
+            Assert.Equal(IntcodeProgramStatus.Completed, status3);
+            Assert.Single(outputListener3.Values);
+            Assert.Equal(BigInteger.Parse("1125899906842624"), outputListener3.Values[0]);
         }
     }
 }
