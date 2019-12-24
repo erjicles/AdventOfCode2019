@@ -4,8 +4,8 @@ using System.Text;
 
 namespace AdventOfCode2019.IO
 {
-    public interface IOutputListener
+    public interface IBufferedInputProvider : IInputProvider
     {
-        void SendOutput(int value);
+        void AddInputValue(int value);
     }
 }

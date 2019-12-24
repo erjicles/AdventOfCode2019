@@ -36,6 +36,7 @@ namespace AdventOfCode2019
             Console.WriteLine($"Day 6 - Part 2: {Day6.GetDay6Part2Answer()}");
             // Day 7
             Console.WriteLine($"Day 7 - Part 1: {Day7.GetDay7Part1Answer()}");
+            Console.WriteLine($"Day 7 - Part 2: {Day7.GetDay7Part2Answer()}");
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdventOfCode2019.Intcode
+namespace AdventOfCode2019.IO
 {
     public class ListOutputListener : IOutputListener
     {

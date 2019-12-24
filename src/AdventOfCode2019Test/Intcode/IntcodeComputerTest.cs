@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2019.Intcode;
+using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -64,7 +65,10 @@ namespace AdventOfCode2019Test.Intcode
             foreach (var testExample in testData)
             {
                 var computer = new IntcodeComputer();
-                var result = computer.RunProgram(testExample.Item1);
+                computer.LoadProgram(testExample.Item1);
+                var programStatus = computer.RunProgram();
+                var result = computer.GetProgramCopy();
+                Assert.Equal(IntcodeProgramStatus.Completed, programStatus);
                 Assert.Equal(testExample.Item2, result);
             }
         }
@@ -97,7 +101,9 @@ namespace AdventOfCode2019Test.Intcode
                 var inputProvider = new StaticValueInputProvider(testExample.Item2);
                 var outputListener = new ListOutputListener();
                 var computer = new IntcodeComputer(inputProvider, outputListener);
-                var result = computer.RunProgram(testExample.Item1);
+                computer.LoadProgram(testExample.Item1);
+                var status = computer.RunProgram();
+                Assert.Equal(IntcodeProgramStatus.Completed, status);
                 Assert.True(outputListener.Values.Count > 0);
                 Assert.Equal(testExample.Item3, outputListener.Values[outputListener.Values.Count - 1]);
             }
@@ -132,7 +138,9 @@ namespace AdventOfCode2019Test.Intcode
                 var inputProvider = new StaticValueInputProvider(testExample.Item2);
                 var outputListener = new ListOutputListener();
                 var computer = new IntcodeComputer(inputProvider, outputListener);
-                var result = computer.RunProgram(testExample.Item1);
+                computer.LoadProgram(testExample.Item1);
+                var status = computer.RunProgram();
+                Assert.Equal(IntcodeProgramStatus.Completed, status);
                 Assert.True(outputListener.Values.Count > 0);
                 Assert.Equal(testExample.Item3, outputListener.Values[outputListener.Values.Count - 1]);
             }

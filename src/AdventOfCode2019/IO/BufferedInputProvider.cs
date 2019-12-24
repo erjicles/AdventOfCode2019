@@ -4,25 +4,21 @@ using System.Text;
 
 namespace AdventOfCode2019.IO
 {
-    public class StaticValueInputProvider : IInputProvider
+    public class BufferedInputProvider : IBufferedInputProvider
     {
-        private readonly int[] _values = new int[] { };
+        private IList<int> _values = new List<int>();
         private int _valueIndex = 0;
-        public StaticValueInputProvider(int value)
+
+        public void AddInputValue(int value)
         {
-            _values = new int[] { value };
-        }
-        public StaticValueInputProvider(int[] values)
-        {
-            _values = new int[values.Length];
-            Array.Copy(values, _values, values.Length);
+            _values.Add(value);
         }
 
         public int GetInput()
         {
-            if (_values == null || _values.Length == 0)
+            if (_values == null || _values.Count == 0)
                 throw new Exception("No values defined");
-            if (_valueIndex >= _values.Length)
+            if (_valueIndex >= _values.Count)
                 throw new Exception("Not enough values in list");
             var currentValueIndex = _valueIndex;
             _valueIndex++;
@@ -30,9 +26,9 @@ namespace AdventOfCode2019.IO
         }
         public bool HasInput()
         {
-            if (_values == null || _values.Length == 0)
+            if (_values == null || _values.Count == 0)
                 return false;
-            if (_valueIndex < _values.Length)
+            if (_valueIndex < _values.Count)
                 return true;
             return false;
         }

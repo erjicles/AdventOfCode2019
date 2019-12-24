@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2019.Intcode;
+using AdventOfCode2019.IO;
 using Combinatorics.Collections;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace AdventOfCode2019.Challenges.Day7
     public class Day7
     {
         public const string FILE_NAME = "Day7Input.txt";
+
         public static int GetDay7Part1Answer()
         {
             // Try every combination of phase settings on the amplifiers. 
@@ -22,18 +24,48 @@ namespace AdventOfCode2019.Challenges.Day7
             // Answer: 255840
             var program = GetDay7Input();
             return GetMaximumAmplifierOutput(
-                0,
-                5,
-                program);
+                initialInput:0,
+                numberOfAmplifiers:5,
+                program:program,
+                feedbackMode:FeedbackMode.Normal);
+        }
+
+        public static int GetDay7Part2Answer()
+        {
+            // Try every combination of the new phase settings on the amplifier 
+            // feedback loop. What is the highest signal that can be sent to 
+            // the thrusters?
+            // Answer: 84088865
+            var program = GetDay7Input();
+            return GetMaximumAmplifierOutput(
+                initialInput: 0,
+                numberOfAmplifiers: 5,
+                program: program,
+                feedbackMode: FeedbackMode.Loop);
         }
 
         public static int GetMaximumAmplifierOutput(
             int initialInput,
             int numberOfAmplifiers,
-            int[] program)
+            int[] program,
+            FeedbackMode feedbackMode)
         {
             int maxOutput = int.MinValue;
-            var phaseValues = Enumerable.Range(0, numberOfAmplifiers).ToArray();
+            int[] phaseValues;
+            if (FeedbackMode.Normal.Equals(feedbackMode))
+            {
+                // Phase values between 1 and N
+                phaseValues = Enumerable.Range(0, numberOfAmplifiers).ToArray();
+            }
+            else if (FeedbackMode.Loop.Equals(feedbackMode))
+            {
+                // Phase values between N and 2N
+                phaseValues = Enumerable.Range(numberOfAmplifiers, numberOfAmplifiers).ToArray();
+            }
+            else
+            {
+                throw new Exception($"Invalid feedback mode {feedbackMode}");
+            }
             var phaseValuesPermutations = new Permutations<int>(phaseValues);
 
             foreach (IList<int> amplifierPhaseSettings in phaseValuesPermutations)
@@ -41,7 +73,8 @@ namespace AdventOfCode2019.Challenges.Day7
                 var output = GetAmplifierOutput(
                     initialInput,
                     amplifierPhaseSettings.ToArray(),
-                    program);
+                    program,
+                    feedbackMode);
                 if (output > maxOutput)
                     maxOutput = output;
             }
@@ -51,22 +84,77 @@ namespace AdventOfCode2019.Challenges.Day7
         public static int GetAmplifierOutput(
             int initialInput, 
             int[] phaseSettings, 
-            int[] program)
+            int[] program,
+            FeedbackMode feedbackMode)
         {
-            int inputValue = initialInput;
-            for (int i = 0; i < phaseSettings.Length; i++)
+            // Initialize the amplifiers
+            var numberOfAmplifiers = phaseSettings.Length;
+            var amplifiers = new List<Tuple<IntcodeComputer, BufferedInputProvider, ListOutputListener>>(numberOfAmplifiers);
+            for (int i = 0; i < numberOfAmplifiers; i++)
             {
-                var inputProvider = new StaticValueInputProvider(
-                    new int[] { phaseSettings[i], inputValue });
+                var inputProvider = new BufferedInputProvider();
+                inputProvider.AddInputValue(phaseSettings[i]);
+                if (i == 0)
+                {
+                    inputProvider.AddInputValue(initialInput);
+                }
                 var outputListener = new ListOutputListener();
                 var computer = new IntcodeComputer(inputProvider, outputListener);
-                computer.RunProgram(program);
+                computer.LoadProgram(program);
+                amplifiers.Add(new Tuple<IntcodeComputer, BufferedInputProvider, ListOutputListener>(
+                    computer,
+                    inputProvider,
+                    outputListener));
+            }
+
+            int currentAmplifierIndex = 0;
+            int round = 1;
+            int output;
+            while (true)
+            {
+                var currentAmplifier = amplifiers[currentAmplifierIndex];
+                var computer = currentAmplifier.Item1;
+                var outputListener = currentAmplifier.Item3;
+                var status = computer.RunProgram();
+                if (!IntcodeProgramStatus.AwaitingInput.Equals(status)
+                    && !IntcodeProgramStatus.Completed.Equals(status))
+                {
+                    throw new Exception($"Program halted with invalid status: {status}");
+                }
                 if (outputListener.Values.Count == 0)
                     throw new Exception("No output received");
-                var output = outputListener.Values[outputListener.Values.Count - 1];
-                inputValue = output;
+                output = outputListener.Values.Last();
+
+                // The program has completed, break out
+                if (currentAmplifierIndex == numberOfAmplifiers - 1
+                    && IntcodeProgramStatus.Completed.Equals(status))
+                {
+                    break;
+                }
+
+                // The program hasn't finished...
+                // Pass the output from this amplifier to the input of the next
+                var nextAmplifierIndex = currentAmplifierIndex + 1;
+                if (nextAmplifierIndex >= numberOfAmplifiers)
+                    nextAmplifierIndex = 0;
+                var nextAmplifier = amplifiers[nextAmplifierIndex];
+                var nextAmplifierInputProvider = nextAmplifier.Item2;
+                nextAmplifierInputProvider.AddInputValue(output);
+
+                currentAmplifierIndex++;
+                if (currentAmplifierIndex == numberOfAmplifiers)
+                {
+                    if (FeedbackMode.Normal.Equals(feedbackMode))
+                        break;
+                    else if (FeedbackMode.Loop.Equals(feedbackMode))
+                    {
+                        currentAmplifierIndex = 0;
+                        round++;
+                    }
+                }
             }
-            return inputValue;
+
+            return output;
         }
 
         public static int[] GetDay7Input()
@@ -74,5 +162,11 @@ namespace AdventOfCode2019.Challenges.Day7
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);
         }
+    }
+
+    public enum FeedbackMode
+    {
+        Normal = 0,
+        Loop = 1
     }
 }

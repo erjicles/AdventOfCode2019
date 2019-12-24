@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdventOfCode2019.Intcode
+namespace AdventOfCode2019.IO
 {
     public interface IInputProvider
     {
-        int GetUserInput();
+        bool HasInput();
+        int GetInput();
     }
 }

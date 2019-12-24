@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2019.Intcode;
+using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +23,8 @@ namespace AdventOfCode2019.Challenges.Day5
             var program = GetDay5Input();
             Console.WriteLine("----> When prompted, enter 1");
             var computer = new IntcodeComputer(new StaticValueInputProvider(1), new ConsoleOutputListener());
-            computer.RunProgram(program);
+            computer.LoadProgram(program);
+            computer.RunProgram();
         }
 
         public static void RunDay5Part2()
@@ -32,7 +34,8 @@ namespace AdventOfCode2019.Challenges.Day5
             var program = GetDay5Input();
             Console.WriteLine("----> When prompted, enter 5");
             var computer = new IntcodeComputer(new StaticValueInputProvider(5), new ConsoleOutputListener());
-            computer.RunProgram(program);
+            computer.LoadProgram(program);
+            computer.RunProgram();
         }
 
         public static int[] GetDay5Input()

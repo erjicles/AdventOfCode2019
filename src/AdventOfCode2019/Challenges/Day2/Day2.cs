@@ -29,8 +29,9 @@ namespace AdventOfCode2019.Challenges.Day2
             program[1] = 12;
             program[2] = 2;
             var computer = new IntcodeComputer();
-            var result = computer.RunProgram(program);
-            return result[0];
+            computer.LoadProgram(program);
+            computer.RunProgram();
+            return computer.GetProgramCopy()[0];
         }
 
         public static int GetDay2Part2Answer()
@@ -62,7 +63,9 @@ namespace AdventOfCode2019.Challenges.Day2
                     initialProgram[1] = noun;
                     initialProgram[2] = verb;
                     var computer = new IntcodeComputer();
-                    var result = computer.RunProgram(initialProgram);
+                    computer.LoadProgram(initialProgram);
+                    computer.RunProgram();
+                    var result = computer.GetProgramCopy();
                     if (result[0] == 19690720)
                     {
                         foundResult = true;

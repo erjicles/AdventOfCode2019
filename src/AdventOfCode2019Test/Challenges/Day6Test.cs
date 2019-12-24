@@ -23,11 +23,11 @@ namespace AdventOfCode2019Test.Challenges
                 Assert.Equal(testExample.Item2, parsedMapEntry);
             }
 
-            Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("ABC"));
-            Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(""));
-            Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("A)"));
-            Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(")B"));
-            Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("AAA(BBB"));
+            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("ABC"));
+            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(""));
+            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("A)"));
+            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(")B"));
+            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("AAA(BBB"));
         }
 
         [Fact]
