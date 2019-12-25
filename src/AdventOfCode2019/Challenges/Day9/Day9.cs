@@ -36,6 +36,25 @@ namespace AdventOfCode2019.Challenges.Day9
             return outputListener.Values[0];
         }
 
+        public static BigInteger GetDay9Part2Answer()
+        {
+            // The program runs in sensor boost mode by providing the input 
+            // instruction the value 2. Once run, it will boost the sensors 
+            // automatically, but it might take a few seconds to complete the 
+            // operation on slower hardware. In sensor boost mode, the program 
+            // will output a single value: the coordinates of the distress signal.
+            // Run the BOOST program in sensor boost mode.What are the 
+            // coordinates of the distress signal?
+            // Answer: 63441
+            var program = GetDay9Input();
+            var inputProvider = new StaticValueInputProvider(2);
+            var outputListener = new ListOutputListener();
+            var computer = new IntcodeComputer(inputProvider, outputListener);
+            computer.LoadProgram(program);
+            computer.RunProgram();
+            return outputListener.Values[0];
+        }
+
         public static BigInteger[] GetDay9Input()
         {
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
