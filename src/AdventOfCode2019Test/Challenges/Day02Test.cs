@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges.Day2;
+﻿using AdventOfCode2019.Challenges.Day02;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -7,13 +7,13 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day2Test
+    public class Day02Test
     {
         [Fact]
         public void GetDay2Part1AnswerTest()
         {
             BigInteger expected = 11590668;
-            BigInteger actual = Day2.GetDay2Part1Answer();
+            BigInteger actual = Day02.GetDay2Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -21,7 +21,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay2Part2AnswerTest()
         {
             int expected = 2254;
-            int actual = Day2.GetDay2Part2Answer();
+            int actual = Day02.GetDay2Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

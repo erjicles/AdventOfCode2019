@@ -7,15 +7,15 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace AdventOfCode2019.Challenges.Day5
+namespace AdventOfCode2019.Challenges.Day05
 {
     /// <summary>
     /// Solution to the Day 5 challenge:
     /// https://adventofcode.com/2019/day/5
     /// </summary>
-    public static class Day5
+    public static class Day05
     {
-        public const string FILE_NAME = "Day5Input.txt";
+        public const string FILE_NAME = "Day05Input.txt";
 
         public static ConsoleOutputListener RunDay5Part1()
         {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdventOfCode2019.Challenges.Day4
+namespace AdventOfCode2019.Challenges.Day04
 {
-    public static class Day4
+    public static class Day04
     {
         public const int Day4Input_RangeMinValue = 108457;
         public const int Day4Input_RangeMaxValue = 562041;

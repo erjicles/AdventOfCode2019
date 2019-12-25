@@ -6,15 +6,15 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace AdventOfCode2019.Challenges.Day9
+namespace AdventOfCode2019.Challenges.Day09
 {
     /// <summary>
     /// Solution to the Day 9 challenge:
     /// https://adventofcode.com/2019/day/9
     /// </summary>
-    public static class Day9
+    public static class Day09
     {
-        public const string FILE_NAME = "Day9Input.txt";
+        public const string FILE_NAME = "Day09Input.txt";
         public static BigInteger GetDay9Part1Answer()
         {
             // The BOOST program will ask for a single input; run it in test 

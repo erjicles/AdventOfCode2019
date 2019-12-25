@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges;
+﻿using AdventOfCode2019.Challenges.Day01;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day1Test
+    public class Day01Test
     {
         [Fact]
         public void CalculateRequiredFuelTest()
@@ -25,7 +25,7 @@ namespace AdventOfCode2019Test.Challenges
             
             foreach (var testExample in testData)
             {
-                var calculatedValue = Day1.CalculateRequiredFuel(testExample.Key);
+                var calculatedValue = Day01.CalculateRequiredFuel(testExample.Key);
                 Assert.Equal(testExample.Value, calculatedValue);
             }
         }
@@ -46,7 +46,7 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var calculatedValue = Day1.CalculateModuleRequiredFuel(testExample.Key);
+                var calculatedValue = Day01.CalculateModuleRequiredFuel(testExample.Key);
                 Assert.Equal(testExample.Value, calculatedValue);
             }
         }
@@ -55,7 +55,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay1Part1AnswerTest()
         {
             int expected = 3453056;
-            int actual = Day1.GetDay1Part1Answer();
+            int actual = Day01.GetDay1Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -63,7 +63,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay1Part2AnswerTest()
         {
             int expected = 5176705;
-            int actual = Day1.GetDay1Part2Answer();
+            int actual = Day01.GetDay1Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

@@ -5,15 +5,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 #nullable enable
 
-namespace AdventOfCode2019.Challenges.Day6
+namespace AdventOfCode2019.Challenges.Day06
 {
     /// <summary>
     /// Solution to the Day 6 challenge:
     /// https://adventofcode.com/2019/day/6
     /// </summary>
-    public class Day6
+    public class Day06
     {
-        public const string FILE_NAME = "Day6Input.txt";
+        public const string FILE_NAME = "Day06Input.txt";
 
         public class MapEntry
         {

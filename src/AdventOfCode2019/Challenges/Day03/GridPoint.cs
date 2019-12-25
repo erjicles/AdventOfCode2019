@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AdventOfCode2019.Challenges.Day3
+namespace AdventOfCode2019.Challenges.Day03
 {
     public class GridPoint
     {

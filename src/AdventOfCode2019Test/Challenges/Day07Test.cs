@@ -1,14 +1,13 @@
-﻿using AdventOfCode2019.Challenges.Day7;
+﻿using AdventOfCode2019.Challenges.Day07;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using Xunit;
-using static AdventOfCode2019.Challenges.Day7.Day7;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day7Test
+    public class Day07Test
     {
         [Fact]
         public void GetMaximumAmplifierOutputTest()
@@ -43,7 +42,7 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var result = Day7.GetMaximumAmplifierOutput(
+                var result = Day07.GetMaximumAmplifierOutput(
                     initialInput:testExample.Item1, 
                     numberOfAmplifiers:testExample.Item2, 
                     program:testExample.Item3, 
@@ -56,7 +55,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay7Part1AnswerTest()
         {
             int expected = 255840;
-            int actual = Day7.GetDay7Part1Answer();
+            int actual = Day07.GetDay7Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -64,7 +63,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay7Part2AnswerTest()
         {
             int expected = 84088865;
-            int actual = Day7.GetDay7Part2Answer();
+            int actual = Day07.GetDay7Part2Answer();
             Assert.Equal(expected, actual);
         }
 

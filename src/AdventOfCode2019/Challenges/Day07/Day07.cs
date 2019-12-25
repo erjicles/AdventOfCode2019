@@ -8,15 +8,15 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace AdventOfCode2019.Challenges.Day7
+namespace AdventOfCode2019.Challenges.Day07
 {
     /// <summary>
     /// Solution to the Day 7 challenge:
     /// https://adventofcode.com/2019/day/7
     /// </summary>
-    public class Day7
+    public class Day07
     {
-        public const string FILE_NAME = "Day7Input.txt";
+        public const string FILE_NAME = "Day07Input.txt";
 
         public static int GetDay7Part1Answer()
         {

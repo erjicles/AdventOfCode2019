@@ -6,15 +6,15 @@ using System.Numerics;
 using System.Text;
 using AdventOfCode2019.Intcode;
 
-namespace AdventOfCode2019.Challenges.Day2
+namespace AdventOfCode2019.Challenges.Day02
 {
     /// <summary>
     /// Solution to the Day 2 challenge:
     /// https://adventofcode.com/2019/day/2
     /// </summary>
-    public static class Day2
+    public static class Day02
     {
-        public const string FILE_NAME = "Day2Input.txt";
+        public const string FILE_NAME = "Day02Input.txt";
 
         public static BigInteger GetDay2Part1Answer()
         {

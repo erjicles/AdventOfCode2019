@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges.Day6;
+﻿using AdventOfCode2019.Challenges.Day06;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day6Test
+    public class Day06Test
     {
         [Fact]
         public void ParseMapEntryTest()
@@ -19,15 +19,15 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var parsedMapEntry = Day6.ParseMapEntry(testExample.Item1);
+                var parsedMapEntry = Day06.ParseMapEntry(testExample.Item1);
                 Assert.Equal(testExample.Item2, parsedMapEntry);
             }
 
-            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("ABC"));
-            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(""));
-            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("A)"));
-            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry(")B"));
-            //Assert.ThrowsAny<Exception>(() => Day6.ParseMapEntry("AAA(BBB"));
+            //Assert.ThrowsAny<Exception>(() => Day06.ParseMapEntry("ABC"));
+            //Assert.ThrowsAny<Exception>(() => Day06.ParseMapEntry(""));
+            //Assert.ThrowsAny<Exception>(() => Day06.ParseMapEntry("A)"));
+            //Assert.ThrowsAny<Exception>(() => Day06.ParseMapEntry(")B"));
+            //Assert.ThrowsAny<Exception>(() => Day06.ParseMapEntry("AAA(BBB"));
         }
 
         [Fact]
@@ -52,8 +52,8 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var orbitalMap = Day6.ConstructOrbitMap(testExample.Item1);
-                var numberOfOrbits = Day6.GetTotalNumberOfOrbits(orbitalMap);
+                var orbitalMap = Day06.ConstructOrbitMap(testExample.Item1);
+                var numberOfOrbits = Day06.GetTotalNumberOfOrbits(orbitalMap);
                 Assert.Equal(testExample.Item2, numberOfOrbits);
             }
         }
@@ -102,8 +102,8 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var orbitalMap = Day6.ConstructOrbitMap(testExample.Item1);
-                var numberOfOrbits = Day6.GetNumberOfOrbitalTransfers("YOU", "SAN", orbitalMap);
+                var orbitalMap = Day06.ConstructOrbitMap(testExample.Item1);
+                var numberOfOrbits = Day06.GetNumberOfOrbitalTransfers("YOU", "SAN", orbitalMap);
                 Assert.Equal(testExample.Item2, numberOfOrbits);
             }
         }
@@ -112,7 +112,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay6Part1AnswerTest()
         {
             int expected = 261306;
-            int actual = Day6.GetDay6Part1Answer();
+            int actual = Day06.GetDay6Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -120,7 +120,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay6Part2AnswerTest()
         {
             int expected = 382;
-            int actual = Day6.GetDay6Part2Answer();
+            int actual = Day06.GetDay6Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

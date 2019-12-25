@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 #nullable enable
 
-namespace AdventOfCode2019.Challenges.Day3
+namespace AdventOfCode2019.Challenges.Day03
 {
-    public static class Day3
+    public static class Day03
     {
-        public const string FILE_NAME = "Day3Input.txt";
+        public const string FILE_NAME = "Day03Input.txt";
         public static GridPoint origin = new GridPoint();
         public static int GetDay3Part1Answer()
         {

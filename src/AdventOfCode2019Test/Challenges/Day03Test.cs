@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges.Day3;
+﻿using AdventOfCode2019.Challenges.Day03;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day3Test
+    public class Day03Test
     {
         [Fact]
         public void GetClosestIntersectionToOriginManhattanDistanceTest()
@@ -41,11 +41,11 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var pathInstructions1 = Day3.GetPathInstructionsFromString(testExample.Item1);
-                var pathInstructions2 = Day3.GetPathInstructionsFromString(testExample.Item2);
-                var path1 = Day3.GeneratePath(pathInstructions1);
-                var path2 = Day3.GeneratePath(pathInstructions2);
-                var result = Day3.GetClosestIntersectionToOriginManhattanDistance(path1, path2);
+                var pathInstructions1 = Day03.GetPathInstructionsFromString(testExample.Item1);
+                var pathInstructions2 = Day03.GetPathInstructionsFromString(testExample.Item2);
+                var path1 = Day03.GeneratePath(pathInstructions1);
+                var path2 = Day03.GeneratePath(pathInstructions2);
+                var result = Day03.GetClosestIntersectionToOriginManhattanDistance(path1, path2);
                 Assert.Equal(testExample.Item3, result);
             }
         }
@@ -83,11 +83,11 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                var pathInstructions1 = Day3.GetPathInstructionsFromString(testExample.Item1);
-                var pathInstructions2 = Day3.GetPathInstructionsFromString(testExample.Item2);
-                var path1 = Day3.GeneratePath(pathInstructions1);
-                var path2 = Day3.GeneratePath(pathInstructions2);
-                var result = Day3.GetMinimalIntersectionTotalSteps(path1, path2);
+                var pathInstructions1 = Day03.GetPathInstructionsFromString(testExample.Item1);
+                var pathInstructions2 = Day03.GetPathInstructionsFromString(testExample.Item2);
+                var path1 = Day03.GeneratePath(pathInstructions1);
+                var path2 = Day03.GeneratePath(pathInstructions2);
+                var result = Day03.GetMinimalIntersectionTotalSteps(path1, path2);
                 Assert.Equal(testExample.Item3, result);
             }
         }
@@ -96,7 +96,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay3Part1AnswerTest()
         {
             int expected = 227;
-            int actual = Day3.GetDay3Part1Answer();
+            int actual = Day03.GetDay3Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -104,7 +104,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay3Part2AnswerTest()
         {
             int expected = 20286;
-            int actual = Day3.GetDay3Part2Answer();
+            int actual = Day03.GetDay3Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

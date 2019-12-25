@@ -1,4 +1,4 @@
-﻿using AdventOfCode2019.Challenges.Day4;
+﻿using AdventOfCode2019.Challenges.Day04;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AdventOfCode2019Test.Challenges
 {
-    public class Day4Test
+    public class Day04Test
     {
         
 
@@ -25,7 +25,7 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                bool isValid = Day4.GetIsValidPart1(testExample.Item1);
+                bool isValid = Day04.GetIsValidPart1(testExample.Item1);
                 Assert.Equal(testExample.Item2, isValid);
             }
         }
@@ -45,7 +45,7 @@ namespace AdventOfCode2019Test.Challenges
 
             foreach (var testExample in testData)
             {
-                bool isValid = Day4.GetIsValidPart2(testExample.Item1);
+                bool isValid = Day04.GetIsValidPart2(testExample.Item1);
                 Assert.Equal(testExample.Item2, isValid);
             }
         }
@@ -54,7 +54,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay4Part1AnswerTest()
         {
             int expected = 2779;
-            int actual = Day4.GetDay4Part1Answer();
+            int actual = Day04.GetDay4Part1Answer();
             Assert.Equal(expected, actual);
         }
 
@@ -62,7 +62,7 @@ namespace AdventOfCode2019Test.Challenges
         public void GetDay4Part2AnswerTest()
         {
             int expected = 1972;
-            int actual = Day4.GetDay4Part2Answer();
+            int actual = Day04.GetDay4Part2Answer();
             Assert.Equal(expected, actual);
         }
     }
