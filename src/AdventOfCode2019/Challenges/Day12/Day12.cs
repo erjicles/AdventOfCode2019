@@ -1,6 +1,10 @@
-﻿using System;
+﻿using AdventOfCode2019.Grid;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -26,6 +30,17 @@ namespace AdventOfCode2019.Challenges.Day12
             return totalEnergy;
         }
 
+        public static BigInteger GetDay12Part2Answer()
+        {
+            // How many steps does it take to reach the first state that 
+            // exactly matches a previous state?
+            // Answer: 376203951569712
+            string[] input = GetDay12Input();
+            IList<Moon> moons = ProcessMoonScanResults(input);
+            BigInteger result = EvolveMoonsUntilStateIsRepeated(moons);
+            return result;
+        }
+
         public static int GetTotalEnergyOfSystem(IList<Moon> moons)
         {
             int totalEnergy = 0;
@@ -34,6 +49,78 @@ namespace AdventOfCode2019.Challenges.Day12
                 totalEnergy += moon.GetTotalEnergy();
             }
             return totalEnergy;
+        }
+
+        public static BigInteger EvolveMoonsUntilStateIsRepeated(IList<Moon> moons)
+        {
+            // Since each state has a unique predecessor, the first state
+            // that will be repeated is the initial state.
+            // Also, since the coordinates are independent of each other,
+            // we only need to see how long it takes for the X coordinate to
+            // cycle, then the Y coordinate to cycle, and the Z coordinate to
+            // cycle, and then find the LCM of the 3 cycle step counts.
+            long totalStepsX = EvolveMoonsUntilStateIsRepeated(moons, 0);
+            long totalStepsY = EvolveMoonsUntilStateIsRepeated(moons, 1);
+            long totalStepsZ = EvolveMoonsUntilStateIsRepeated(moons, 2);
+            var gcdXY = BigInteger.GreatestCommonDivisor(totalStepsX, totalStepsY);
+            var lcmXY = (totalStepsX * totalStepsY) / gcdXY;
+            var gcdXYZ = BigInteger.GreatestCommonDivisor(lcmXY, totalStepsZ);
+            var lcmXYZ = (lcmXY * totalStepsZ) / gcdXYZ;
+            return lcmXYZ;
+        }
+
+        public static long EvolveMoonsUntilStateIsRepeated(IList<Moon> moons, int coordinate)
+        {
+            if (coordinate < 0 || coordinate > 2)
+                throw new Exception($"Invalid coordinate {coordinate}");
+            var hasher = MD5.Create();
+            long timeStep = 0;
+            var initialPositionHash = GetSystemMD5Hash(hasher, moons, coordinate);
+            while(true)
+            {
+                if (timeStep > 0)
+                {
+                    var systemHash = GetSystemMD5Hash(hasher, moons, coordinate);
+                    if (initialPositionHash.Contains(systemHash))
+                        break;
+                }
+                EvolveMoons(moons, 1);
+                timeStep++;
+            }
+            return timeStep;
+        }
+
+        public static string GetSystemMD5Hash(MD5 hasher, IList<Moon> moons, int coordinate)
+        {
+            var systemString = GetSystemString(moons, coordinate);
+            // Convert the input string to a byte array and compute the hash.
+            byte[] data = hasher.ComputeHash(Encoding.UTF8.GetBytes(systemString));
+
+            // Create a new Stringbuilder to collect the bytes
+            // and create a string.
+            StringBuilder sBuilder = new StringBuilder();
+
+            // Loop through each byte of the hashed data 
+            // and format each one as a hexadecimal string.
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            // Return the hexadecimal string.
+            return sBuilder.ToString();
+        }
+
+        public static string GetSystemString(IList<Moon> moons, int coordinate)
+        {
+            var sb = new StringBuilder();
+            foreach (var moon in moons)
+            {
+                if (sb.Length > 0)
+                    sb.Append(";");
+                sb.Append(moon.GetCoordinateString(coordinate));
+            }
+            return sb.ToString();
         }
 
         public static void EvolveMoons(IList<Moon> moons, int numberOfTimeSteps)

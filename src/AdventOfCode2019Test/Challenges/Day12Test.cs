@@ -1,6 +1,7 @@
 ﻿using AdventOfCode2019.Challenges.Day12;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using Xunit;
 
@@ -47,6 +48,47 @@ namespace AdventOfCode2019Test.Challenges
                 Day12.EvolveMoons(moons, testExample.Item2);
                 int totalEnergy = Day12.GetTotalEnergyOfSystem(moons);
                 Assert.Equal(testExample.Item3, totalEnergy);
+            }
+        }
+
+        [Fact]
+        public void EvolveMoonsUntilSomeStateIsRepeatedTest()
+        {
+            // Tests taken from here:
+            // https://adventofcode.com/2019/day/12
+
+            // <x=-1, y=0, z=2>
+            // <x=2, y=-10, z=-7>
+            // <x=4, y=-8, z=8>
+            // <x=3, y=5, z=-1>
+            // Number of steps to repeat a previous state: 2772
+            // <x=-8, y=-10, z=0>
+            // <x=5, y=5, z=10>
+            // <x=2, y=-7, z=3>
+            // <x=9, y=-8, z=-3>
+            // Number of steps to repeat a previous state: 4686774924
+            var testData = new List<Tuple<string[], long>>(new Tuple<string[], long>[] {
+                new Tuple<string[], long>(new string[]
+                {
+                    "<x=-1, y=0, z=2>",
+                    "<x=2, y=-10, z=-7>",
+                    "<x=4, y=-8, z=8>",
+                    "<x=3, y=5, z=-1>"
+                }, 2772),
+                new Tuple<string[], long>(new string[]
+                {
+                    "<x=-8, y=-10, z=0>",
+                    "<x=5, y=5, z=10>",
+                    "<x=2, y=-7, z=3>",
+                    "<x=9, y=-8, z=-3>"
+                }, 4686774924),
+            });
+
+            foreach (var testExample in testData)
+            {
+                var moons = Day12.ProcessMoonScanResults(testExample.Item1);
+                BigInteger numberOfSteps = Day12.EvolveMoonsUntilStateIsRepeated(moons);
+                Assert.Equal(testExample.Item2, numberOfSteps);
             }
         }
 

@@ -74,5 +74,48 @@ namespace AdventOfCode2019.Challenges.Day12
                 + Math.Abs(Velocity.Y)
                 + Math.Abs(Velocity.Z);
         }
+
+        public override bool Equals(Object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                Moon m = (Moon)obj;
+                return Position.Equals(m.Position)
+                    && Velocity.Equals(m.Velocity);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            var tuple = new Tuple<int, int, int, int, int, int>(
+                Position.X, Position.Y, Position.Z,
+                Velocity.X, Velocity.Y, Velocity.Z);
+            int hash = tuple.GetHashCode();
+            return hash;
+        }
+
+        public override string ToString()
+        {
+            return String.Format("Pos:<{0}, {1}, {2}>, Vel:<{3}, {4}, {5}>", 
+                Position.X, Position.Y, Position.Z,
+                Velocity.X, Velocity.Y, Velocity.Z);
+        }
+
+        public string GetCoordinateString(int coordinate)
+        {
+            if (coordinate == 0)
+                return String.Format("Pos:<{0}>, Vel:<{1}", Position.X, Velocity.X);
+            else if (coordinate == 1)
+                return String.Format("Pos:<{0}>, Vel:<{1}", Position.Y, Velocity.Y);
+            else if (coordinate == 2)
+                return String.Format("Pos:<{0}>, Vel:<{1}", Position.Z, Velocity.Z);
+            else
+                throw new Exception($"Invalid coordinate {coordinate}");
+        }
     }
 }
