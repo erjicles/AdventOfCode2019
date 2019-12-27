@@ -4,6 +4,7 @@ using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -27,6 +28,50 @@ namespace AdventOfCode2019.Challenges.Day11
             return gridPaintColors.Count;
         }
 
+        public static int RunDay11Part2()
+        {
+            // Based on the Space Law Space Brochure that the Space Police 
+            // attached to one of your windows, a valid registration identifier 
+            // is always eight capital letters. After starting the robot on a 
+            // single white panel instead, what registration identifier does 
+            // it paint on your hull?
+            // Answer: APUGURFH
+            var program = GetDay11Input();
+            var gridPaintColors = RunEmergencyHullPaintingRobot(program, 1);
+            DrawGrid(gridPaintColors);
+            return gridPaintColors.Count;
+        }
+
+        public static void DrawGrid(Dictionary<GridPoint, int> gridPaintColors)
+        {
+            int minX = gridPaintColors.Min(kvp => kvp.Key.X);
+            int maxX = gridPaintColors.Max(kvp => kvp.Key.X);
+            int minY = gridPaintColors.Min(kvp => kvp.Key.Y);
+            int maxY = gridPaintColors.Max(kvp => kvp.Key.Y);
+            Console.WriteLine();
+            for (int y = maxY; y >= minY; y--)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    var gridPoint = new GridPoint(x, y);
+                    if (gridPaintColors.ContainsKey(gridPoint))
+                    {
+                        var gridColor = gridPaintColors[gridPoint];
+                        if (gridColor == 1)
+                            Console.Write("#");
+                        else
+                            Console.Write(" ");
+                    }
+                    else
+                    {
+                        Console.Write(" ");
+                    }
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+
         /// <summary>
         /// Runs the given input program and returns a dictionary containing
         /// the set of points painted at least once and their final paint color.
@@ -34,7 +79,9 @@ namespace AdventOfCode2019.Challenges.Day11
         /// </summary>
         /// <param name="program"></param>
         /// <returns></returns>
-        public static Dictionary<GridPoint, int> RunEmergencyHullPaintingRobot(IList<BigInteger> program)
+        public static Dictionary<GridPoint, int> RunEmergencyHullPaintingRobot(
+            IList<BigInteger> program,
+            int firstPanelColor = 0)
         {
             var gridPaintColors = new Dictionary<GridPoint, int>();
             int defaultPaintColor = 0;
@@ -45,16 +92,24 @@ namespace AdventOfCode2019.Challenges.Day11
             computer.LoadProgram(program);
 
             var currentGridPoint = new GridPoint(0, 0);
+            int currentOutputCount = 0;
+            int loopCount = 0;
+            bool isInitialInput = true;
             RobotDirection currentRobotDirection = RobotDirection.Up;
             var programStatus = IntcodeProgramStatus.Running;
-            int currentOutputCount = 0;
             while (IntcodeProgramStatus.Running.Equals(programStatus)
-                || IntcodeProgramStatus.AwaitingInput.Equals(programStatus))
+            || IntcodeProgramStatus.AwaitingInput.Equals(programStatus))
             {
+                loopCount++;
                 // Provide input value for the current grid
-                int inputValue = gridPaintColors.ContainsKey(currentGridPoint) ? 
-                    gridPaintColors[currentGridPoint] : 
+                int inputValue = gridPaintColors.ContainsKey(currentGridPoint) ?
+                    gridPaintColors[currentGridPoint] :
                     defaultPaintColor;
+                if (isInitialInput)
+                {
+                    inputValue = firstPanelColor;
+                    isInitialInput = false;
+                }
                 inputProvider.AddInputValue(inputValue);
 
                 // Run the program, given the input

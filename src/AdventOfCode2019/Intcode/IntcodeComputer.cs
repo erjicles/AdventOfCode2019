@@ -51,6 +51,11 @@ namespace AdventOfCode2019.Intcode
             _relativeBase = initialRelativeBase;
         }
 
+        public void SetPosition(int position)
+        {
+            _position = position;
+        }
+
         public IList<BigInteger> GetProgramCopy()
         {
             if (_program == null)
