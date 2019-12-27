@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventOfCode2019.Grid;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
