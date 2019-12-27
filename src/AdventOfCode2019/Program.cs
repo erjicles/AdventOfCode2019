@@ -9,6 +9,7 @@ using AdventOfCode2019.Challenges.Day07;
 using AdventOfCode2019.Challenges.Day08;
 using AdventOfCode2019.Challenges.Day09;
 using AdventOfCode2019.Challenges.Day01;
+using AdventOfCode2019.Challenges.Day10;
 
 namespace AdventOfCode2019
 {
@@ -47,6 +48,8 @@ namespace AdventOfCode2019
             // Day 9
             Console.WriteLine($"Day 9 - Part 1: {Day09.GetDay9Part1Answer()}");
             Console.WriteLine($"Day 9 - Part 2: {Day09.GetDay9Part2Answer()}");
+            // Day 10
+            Console.WriteLine($"Day 10 - Part 1: {Day10.GetDay10Part1Answer()}");
         }
     }
 }
