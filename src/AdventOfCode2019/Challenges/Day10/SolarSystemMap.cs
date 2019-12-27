@@ -48,11 +48,67 @@ namespace AdventOfCode2019.Challenges.Day10
             }
         }
 
+        // Assumes the station starts rotating clockwise from vertical
+        public SolarObject GetNthAsteroidVaporized(
+            SolarGridPoint centerPoint,
+            int n)
+        {
+            if (n < 1)
+                throw new ArgumentOutOfRangeException(nameof(n));
+            // Initialize the set of objects remaining
+            var pointsRemaining = _solarObjectDictionary
+                .Select(kvp => kvp.Key)
+                .ToHashSet();
+            if (pointsRemaining.Contains(centerPoint))
+                pointsRemaining.Remove(centerPoint);
+
+            // Initialize the ordered list of objects vaporized
+            var objectsVaporized = new List<SolarObject>();
+
+            // On each rotation, get the list of objects vaporized, ordered
+            // clockwise from the starting angle
+            int currentRotation = 1;
+            var startingLaserVector = new Tuple<Radical, Radical>(0, -1);
+            while (pointsRemaining.Count > 0)
+            {
+                // Get the list of objects seen (and therefore vaporized)
+                // on this rotation
+                var objectsVaporizedOnRotation =
+                    GetObjectsVisibleFromPoint(centerPoint, pointsRemaining);
+
+                // Order by clockwise angle
+                var objectsVaporizedOnRotationOrdered = objectsVaporizedOnRotation
+                    .Select(o => new Tuple<double, SolarObject>(
+                        VectorHelper.GetClockwiseAngleBetweenVectors(
+                            startingLaserVector,
+                            SolarGridPoint.GetDifferenceVector(centerPoint, o.GridPoint).ToRadicalVector()),
+                        o))
+                    .OrderBy(o => o.Item1)
+                    .ToList();
+
+                // Remove the objects vaporized from the remaining list
+                foreach (var vaporizedObject in objectsVaporizedOnRotation)
+                {
+                    if (pointsRemaining.Contains(vaporizedObject.GridPoint))
+                    {
+                        pointsRemaining.Remove(vaporizedObject.GridPoint);
+                    }
+                }
+
+                // Add ordered list of objects to
+                objectsVaporized.AddRange(objectsVaporizedOnRotationOrdered.Select(o => o.Item2));
+
+                currentRotation++;
+            }
+
+            // Get the nth item
+            if (n-1 >= objectsVaporized.Count)
+                return null;
+            return objectsVaporized[n-1];
+        }
+
         public Tuple<SolarObject, int> GetObjectThatSeesMostOtherObjects()
         {
-            int mostObjectsSeen = 0;
-            SolarObject bestObjectForVisibility = null;
-
             // Start multithreading block -- process each object in parallel
             // Initialize dictionary of results for each object
             var resultList = new List<Tuple<SolarObject, int>>();
@@ -66,7 +122,14 @@ namespace AdventOfCode2019.Challenges.Day10
                     // Get the total seen from this object
                     var point = kvp.Key;
                     var solarObject = kvp.Value;
-                    var objectsVisibleFromThisObject = GetObjectsVisibleFromPoint(point);
+                    var pointsToCheck = _solarObjectDictionary
+                        .Select(kvp => kvp.Key)
+                        .ToHashSet();
+                    pointsToCheck.Remove(kvp.Key);
+                    var objectsVisibleFromThisObject = 
+                        GetObjectsVisibleFromPoint(
+                            point,
+                            pointsToCheck);
 
                     // Add the result to the result dictionary
                     lock (resultList)
@@ -93,7 +156,9 @@ namespace AdventOfCode2019.Challenges.Day10
             return result;
         }
 
-        public IList<SolarObject> GetObjectsVisibleFromPoint(SolarGridPoint point)
+        public IList<SolarObject> GetObjectsVisibleFromPoint(
+            SolarGridPoint point,
+            HashSet<SolarGridPoint> pointsToCheck)
         {
             // Define a "jump vector" as a displacement from the given
             // central point to another point.
@@ -107,7 +172,7 @@ namespace AdventOfCode2019.Challenges.Day10
             IList<SolarObject> objectsSeen = new List<SolarObject>();
             var pointsChecked = new HashSet<SolarGridPoint>();
             var displacementVectorsChecked = new HashSet<Tuple<int, int>>();
-            var numberToCheck = _solarObjectDictionary.Count - 1;
+            var numberToCheck = pointsToCheck.Count;
             int jumpNumber = 1;
             while (pointsChecked.Count < numberToCheck)
             {
@@ -129,7 +194,7 @@ namespace AdventOfCode2019.Challenges.Day10
                             continue;
 
                         // Check if the point contains an object
-                        if (_solarObjectDictionary.ContainsKey(currentPoint))
+                        if (pointsToCheck.Contains(currentPoint))
                         {
                             if (!encounteredObjectAlongRay)
                             {

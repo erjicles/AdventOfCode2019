@@ -10,7 +10,7 @@ namespace AdventOfCode2019.Challenges.Day10
     {
         public static Radical GetVectorLength(Tuple<int, int> v)
         {
-            return GetVectorLength(new Tuple<Radical, Radical>(v.Item1, v.Item2));
+            return GetVectorLength(v.ToRadicalVector());
         }
 
         public static Radical GetVectorLength(Tuple<Radical, Radical> v)
@@ -29,7 +29,7 @@ namespace AdventOfCode2019.Challenges.Day10
 
         public static Tuple<Radical, Radical> GetUnitVector(Tuple<int, int> v)
         {
-            return GetUnitVector(new Tuple<Radical, Radical>(v.Item1, v.Item2));
+            return GetUnitVector(v.ToRadicalVector());
         }
 
         public static Tuple<Radical, Radical> GetUnitVector(Tuple<Radical, Radical> v)
@@ -63,8 +63,8 @@ namespace AdventOfCode2019.Challenges.Day10
         {
 
             return GetAreParallelAndUnidirectional(
-                new Tuple<Radical, Radical>(v1.Item1, v1.Item2),
-                new Tuple<Radical, Radical>(v2.Item1, v2.Item2));
+                v1.ToRadicalVector(),
+                v2.ToRadicalVector());
         }
 
         /// <summary>
@@ -132,6 +132,37 @@ namespace AdventOfCode2019.Challenges.Day10
             var resultPoint = SolarGridPoint.GetPointAtRayVector(
                 center, displacement);
             return resultPoint;
+        }
+
+        public static double GetClockwiseAngleBetweenVectors(
+            Tuple<Radical, Radical> v1,
+            Tuple<Radical, Radical> v2)
+        {
+            // https://stackoverflow.com/questions/14066933/direct-way-of-computing-clockwise-angle-between-2-vectors
+            // dot = x1*x2 + y1*y2      # dot product between [x1, y1] and [x2, y2]
+            // det = x1 * y2 - y1 * x2      # determinant
+            // angle = atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
+            var dot = (v1.Item1 * v2.Item1) + (v1.Item2 * v2.Item2);
+            var det = (v1.Item1 * v2.Item2) - (v1.Item2 * v2.Item1);
+            var dotDouble = dot.ToDouble();
+            var detDouble = det.ToDouble();
+            var angle = Math.Atan2(detDouble, dotDouble);
+            if (angle < 0.0)
+            {
+                angle = 2 * Math.PI + angle;
+            }
+            return angle;
+
+            //var u1 = GetUnitVector(v1);
+            //var u2 = GetUnitVector(v2);
+            //var innerProduct = GetInnerProduct(u1, u2);
+            //var angle = Math.Acos(innerProduct.ToDouble());
+            //return angle;
+        }
+
+        public static Tuple<Radical, Radical> ToRadicalVector(this Tuple<int, int> vector)
+        {
+            return new Tuple<Radical, Radical>(vector.Item1, vector.Item2);
         }
     }
 }

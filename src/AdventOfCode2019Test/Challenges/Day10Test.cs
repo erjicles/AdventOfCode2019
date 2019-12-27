@@ -175,10 +175,91 @@ namespace AdventOfCode2019Test.Challenges
         }
 
         [Fact]
+        public void GetNthAsteroidVaporizedTest()
+        {
+            // Tests taken from here:
+            // https://adventofcode.com/2019/day/10
+            var testData = new List<Tuple<string[], SolarGridPoint, int, SolarGridPoint>>(new Tuple<string[], SolarGridPoint, int, SolarGridPoint>[] {
+                // In the large example above (the one with the best monitoring station location at 11,13):
+                // The 1st asteroid to be vaporized is at 11,12.
+                // The 2nd asteroid to be vaporized is at 12,1.
+                // The 3rd asteroid to be vaporized is at 12,2.
+                // The 10th asteroid to be vaporized is at 12,8.
+                // The 20th asteroid to be vaporized is at 16,0.
+                // The 50th asteroid to be vaporized is at 16,9.
+                // The 100th asteroid to be vaporized is at 10,16.
+                // The 199th asteroid to be vaporized is at 9,6.
+                // The 200th asteroid to be vaporized is at 8,2.
+                // The 201st asteroid to be vaporized is at 10,9.
+                // The 299th and final asteroid to be vaporized is at 11,1.
+                //.#..##.###...#######
+                //##.############..##.
+                //.#.######.########.#
+                //.###.#######.####.#.
+                //#####.##.#.##.###.##
+                //..#####..#.#########
+                //####################
+                //#.####....###.#.#.##
+                //##.#################
+                //#####.##.###..####..
+                //..######..##.#######
+                //####.##.####...##..#
+                //.#####..#.######.###
+                //##...#.##########...
+                //#.##########.#######
+                //.####.#.###.###.#.##
+                //....##.##.###..#####
+                //.#.#.###########.###
+                //#.#.#.#####.####.###
+                //###.##.####.##.#..##
+                new Tuple<string[], SolarGridPoint, int, SolarGridPoint>(
+                    new string[]
+                    {
+                        ".#..##.###...#######",
+                        "##.############..##.",
+                        ".#.######.########.#",
+                        ".###.#######.####.#.",
+                        "#####.##.#.##.###.##",
+                        "..#####..#.#########",
+                        "####################",
+                        "#.####....###.#.#.##",
+                        "##.#################",
+                        "#####.##.###..####..",
+                        "..######..##.#######",
+                        "####.##.####...##..#",
+                        ".#####..#.######.###",
+                        "##...#.##########...",
+                        "#.##########.#######",
+                        ".####.#.###.###.#.##",
+                        "....##.##.###..#####",
+                        ".#.#.###########.###",
+                        "#.#.#.#####.####.###",
+                        "###.##.####.##.#..##",
+                    },
+                    new SolarGridPoint(11,13), 200, new SolarGridPoint(8, 2)),
+            });
+
+            foreach (var testExample in testData)
+            {
+                var map = new SolarSystemMap(testExample.Item1);
+                var result = map.GetNthAsteroidVaporized(testExample.Item2, testExample.Item3);
+                Assert.Equal(testExample.Item4, result.GridPoint);
+            }
+        }
+
+        [Fact]
         public void GetDay10Part1AnswerTest()
         {
             int expected = 282;
             int actual = Day10.GetDay10Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay10Part2AnswerTest()
+        {
+            int expected = 1008;
+            int actual = Day10.GetDay10Part2Answer();
             Assert.Equal(expected, actual);
         }
     }
