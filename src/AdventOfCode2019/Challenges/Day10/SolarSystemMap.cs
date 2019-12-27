@@ -95,69 +95,60 @@ namespace AdventOfCode2019.Challenges.Day10
 
         public IList<SolarObject> GetObjectsVisibleFromPoint(SolarGridPoint point)
         {
-            // Starting with the given central point, get all objects lying
-            // on the enclosing box of all points adjacent to the central point.
-            // For each object on that box, do the following:
-            // 1) Mark the object as seen
-            // 2) Get the ray extending from the central point through the
-            //    object's point, and mark any other objects on that ray as
-            //    blocked.
-            // Once each object within that enclosing box is checked, repeat 
-            // the process by expanding the box to enclose the first box.
-            // Continue the process until every object on the map has been
-            // checked.
-            IList<SolarObject> result = new List<SolarObject>();
-            var pointsRemainingToBeChecked = _solarObjectDictionary
-                .Select(kvp => kvp.Key)
-                .ToHashSet();
-            pointsRemainingToBeChecked.Remove(point);
-            var pointsAlreadyChecked = new HashSet<SolarGridPoint>();
-            int boxNumber = 1;
-            while (GetIsNthBoxFromPointPartiallyWithinMap(point, boxNumber))
+            // Define a "jump vector" as a displacement from the given
+            // central point to another point.
+            // 1) For each integer n starting with 1, find all jump vectors where
+            //    |x| + |y| = n. 
+            // 2a) For each jump vector for a given n, move outwards from the
+            //     central point in multiples of the given jump vector.
+            // 2b) If a point is encountered containing an object that hasn't
+            //     been seen before, then mark that object as seen. Afterwards,
+            //     mark any subsequent objects encountered as blocked.
+            IList<SolarObject> objectsSeen = new List<SolarObject>();
+            var pointsChecked = new HashSet<SolarGridPoint>();
+            var displacementVectorsChecked = new HashSet<Tuple<int, int>>();
+            var numberToCheck = _solarObjectDictionary.Count - 1;
+            int jumpNumber = 1;
+            while (pointsChecked.Count < numberToCheck)
             {
-                IList<SolarObject> objectsInBox = GetSolarObjectsInNthBoxFromPoint(point, boxNumber);
-                foreach (var objectInBox in objectsInBox)
-                {
-                    if (pointsRemainingToBeChecked.Contains(objectInBox.GridPoint))
-                        pointsRemainingToBeChecked.Remove(objectInBox.GridPoint);
-                    if (pointsAlreadyChecked.Contains(objectInBox.GridPoint))
-                        continue;
-                    pointsAlreadyChecked.Add(objectInBox.GridPoint);
-                    result.Add(objectInBox);
+                // Get all jump vectors for this n
+                var jumpVectors = VectorHelper.GetJumpVectors(jumpNumber);
 
-                    // Mark all objects lying on the ray from the central
-                    // point through this object's point as checked
-                    // (including the current object)
-                    // 1) Compute the difference vector from the central point
-                    //    to this point
-                    // 2a) For each point not already checked, get the difference
-                    //    vector from the central point to that point
-                    // 2b) Compute the unit vector for both points
-                    // Compute the dot product of the two difference vectors;
-                    //    If one, then they are parallel.
-                    // 2c) If they are parallel, check the signs of the difference
-                    //     vector to see if they're in the same direction from
-                    //     the central point. If they are, then mark the point
-                    //     as blocked.
-                    var differenceVector = SolarGridPoint.GetDifferenceVector(point, objectInBox.GridPoint);
-                    var differenceUnitVector = VectorHelper.GetUnitVector(differenceVector);
-                    var potentiallyBlockedPoints = pointsRemainingToBeChecked.ToHashSet();
-                    foreach (var otherPoint in potentiallyBlockedPoints)
+                foreach (var jumpVector in jumpVectors)
+                {
+                    int jumpStep = 1;
+                    var displacementVector = VectorHelper.MultiplyVector(jumpVector, jumpStep);
+                    if (displacementVectorsChecked.Contains(displacementVector))
+                        continue;
+                    displacementVectorsChecked.Add(displacementVector);
+                    var currentPoint = SolarGridPoint.GetPointAtRayVector(point, displacementVector);
+                    bool encounteredObjectAlongRay = false;
+                    while (GetIsCoordinateInGrid(currentPoint))
                     {
-                        var otherDifferenceVector = SolarGridPoint.GetDifferenceVector(point, otherPoint);
-                        var pointsLieOnSameRay = VectorHelper.GetAreParallelAndUnidirectional(
-                            differenceUnitVector, 
-                            new Tuple<Radical, Radical>(otherDifferenceVector.Item1, otherDifferenceVector.Item2));
-                        if (pointsLieOnSameRay)
+                        if (pointsChecked.Contains(currentPoint))
+                            continue;
+
+                        // Check if the point contains an object
+                        if (_solarObjectDictionary.ContainsKey(currentPoint))
                         {
-                            pointsRemainingToBeChecked.Remove(otherPoint);
-                            pointsAlreadyChecked.Add(otherPoint);
+                            if (!encounteredObjectAlongRay)
+                            {
+                                objectsSeen.Add(_solarObjectDictionary[currentPoint]);
+                                encounteredObjectAlongRay = true;
+                            }
+                            pointsChecked.Add(currentPoint);
                         }
+
+                        jumpStep++;
+                        displacementVector = VectorHelper.MultiplyVector(jumpVector, jumpStep);
+                        displacementVectorsChecked.Add(displacementVector);
+                        currentPoint = SolarGridPoint.GetPointAtRayVector(point, displacementVector);
                     }
                 }
-                boxNumber++;
+
+                jumpNumber++;
             }
-            return result;
+            return objectsSeen;
         }
 
         public bool GetIsNthBoxFromPointPartiallyWithinMap(SolarGridPoint point, int N)

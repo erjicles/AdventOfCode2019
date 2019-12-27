@@ -86,6 +86,52 @@ namespace AdventOfCode2019.Challenges.Day10
             return false;
         }
 
-        
+        /// <summary>
+        /// Get all vectors such that |x| + |y| = <paramref name="n"/>
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static IList<Tuple<int, int>> GetJumpVectors(int n)
+        {
+            if (n < 0)
+                throw new ArgumentOutOfRangeException(nameof(n));
+            var result = new List<Tuple<int, int>>();
+            for (int x = -n; x <= n; x++)
+            {
+                int y = n - Math.Abs(x);
+                result.Add(new Tuple<int, int>(x, y));
+                int negativeY = -y;
+                if (negativeY != y)
+                    result.Add(new Tuple<int, int>(x, negativeY));
+            }
+            return result;
+        }
+
+        public static Tuple<int, int> MultiplyVector(Tuple<int, int> v, int scalar)
+        {
+            return new Tuple<int, int>(v.Item1 * scalar, v.Item2 * scalar);
+        }
+
+        /// <summary>
+        /// Given a <paramref name="center"/> point and a 
+        /// <paramref name="jumpVector"/>, returns the point reached by moving
+        /// from the <paramref name="center"/> along 
+        /// <paramref name="jumpStep"/> multiples of the 
+        /// <paramref name="jumpVector"/>.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="jumpVector"></param>
+        /// <param name="jumpNumber"></param>
+        /// <returns></returns>
+        public static SolarGridPoint GetJumpPoint(
+            SolarGridPoint center, 
+            Tuple<int, int> jumpVector, 
+            int jumpStep)
+        {
+            var displacement = MultiplyVector(jumpVector, jumpStep);
+            var resultPoint = SolarGridPoint.GetPointAtRayVector(
+                center, displacement);
+            return resultPoint;
+        }
     }
 }

@@ -58,11 +58,11 @@ namespace AdventOfCode2019.Challenges.Day10
         /// <returns></returns>
         public static SolarGridPoint GetPointAtRayVector(
             SolarGridPoint centralPoint, 
-            Vector<int> rayVector)
+            Tuple<int, int> rayVector)
         {
             return new SolarGridPoint(
-                centralPoint.X + rayVector[0], 
-                centralPoint.Y + rayVector[1]);
+                centralPoint.X + rayVector.Item1, 
+                centralPoint.Y + rayVector.Item2);
         }
 
         public static Tuple<int, int> GetDifferenceVector(
