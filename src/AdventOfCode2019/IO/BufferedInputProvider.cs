@@ -7,29 +7,29 @@ namespace AdventOfCode2019.IO
 {
     public class BufferedInputProvider : IBufferedInputProvider
     {
-        private IList<BigInteger> _values = new List<BigInteger>();
+        public List<BigInteger> Values { get; } = new List<BigInteger>();
         private int _valueIndex = 0;
 
         public void AddInputValue(BigInteger value)
         {
-            _values.Add(value);
+            Values.Add(value);
         }
 
         public BigInteger GetInput()
         {
-            if (_values == null || _values.Count == 0)
+            if (Values == null || Values.Count == 0)
                 throw new Exception("No values defined");
-            if (_valueIndex >= _values.Count)
+            if (_valueIndex >= Values.Count)
                 throw new Exception("Not enough values in list");
             var currentValueIndex = _valueIndex;
             _valueIndex++;
-            return _values[currentValueIndex];
+            return Values[currentValueIndex];
         }
         public bool HasInput()
         {
-            if (_values == null || _values.Count == 0)
+            if (Values == null || Values.Count == 0)
                 return false;
-            if (_valueIndex < _values.Count)
+            if (_valueIndex < Values.Count)
                 return true;
             return false;
         }

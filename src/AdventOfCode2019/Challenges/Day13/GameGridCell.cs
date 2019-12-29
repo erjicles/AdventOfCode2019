@@ -8,6 +8,12 @@ namespace AdventOfCode2019.Challenges.Day13
     public class GameGridCell : GridPoint
     {
         public GameCellType Type { get; set; }
+        public GameGridCell(int x, int y)
+        {
+            X = x;
+            Y = y;
+            Type = GameCellType.Empty;
+        }
         public GameGridCell(int x, int y, GameCellType type)
         {
             X = x;
