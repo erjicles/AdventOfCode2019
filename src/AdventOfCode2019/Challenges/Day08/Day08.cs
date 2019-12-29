@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventOfCode2019.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -127,12 +128,7 @@ namespace AdventOfCode2019.Challenges.Day08
 
         public static string GetDay8Input()
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
-            if (!File.Exists(filePath))
-            {
-                throw new Exception($"Cannot locate file {filePath}");
-            }
-            return File.ReadAllText(filePath);
+            return FileHelper.ReadInputFileAsString(FILE_NAME);
         }
     }
 }

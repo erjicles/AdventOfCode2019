@@ -43,7 +43,7 @@ namespace AdventOfCode2019.Challenges.Day05
 
         public static BigInteger[] GetDay5Input()
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
+            string filePath = FileHelper.GetInputFilePath(FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);
         }
     }

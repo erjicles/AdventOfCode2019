@@ -56,7 +56,7 @@ namespace AdventOfCode2019.Challenges.Day13
 
         public static BigInteger[] GetDay13Input()
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
+            var filePath = FileHelper.GetInputFilePath(FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);
         }
     }

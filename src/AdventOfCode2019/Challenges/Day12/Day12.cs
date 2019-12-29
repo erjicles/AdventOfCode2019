@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2019.Grid;
+using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -200,25 +201,7 @@ namespace AdventOfCode2019.Challenges.Day12
 
         public static string[] GetDay12Input()
         {
-            var result = new List<string>();
-
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
-            if (!File.Exists(filePath))
-            {
-                throw new Exception($"Cannot locate file {filePath}");
-            }
-            using (StreamReader sr = new StreamReader(filePath))
-            {
-                while (sr.Peek() >= 0)
-                {
-                    string? currentLine = sr.ReadLine();
-                    if (currentLine != null)
-                    {
-                        result.Add(currentLine);
-                    }
-                }
-            }
-            return result.ToArray();
+            return FileHelper.ReadInputFileLines(FILE_NAME).ToArray();
         }
     }
 }

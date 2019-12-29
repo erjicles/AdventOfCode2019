@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using AdventOfCode2019.Intcode;
+using AdventOfCode2019.IO;
 
 namespace AdventOfCode2019.Challenges.Day02
 {
@@ -81,7 +82,7 @@ namespace AdventOfCode2019.Challenges.Day02
 
         public static BigInteger[] GetDay2Input()
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "InputData", FILE_NAME);
+            string filePath = FileHelper.GetInputFilePath(FILE_NAME);
             return IntcodeComputer.ReadProgramFromFile(filePath);
         }
     }
