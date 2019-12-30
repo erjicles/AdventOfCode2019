@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -17,45 +18,99 @@ namespace AdventOfCode2019.Challenges.Day14
         public const string OreName = "ORE";
         public const string FuelName = "FUEL";
 
-        public static int GetDay14Part1Answer()
+        public static BigInteger GetDay14Part1Answer()
         {
             // Given the list of reactions in your puzzle input, what is the 
             // minimum amount of ORE required to produce exactly 1 FUEL?
             // Answer: 873899
             IList<string> input = GetDay14Input();
-            int result = GetQuantityOfComponentRequiredToGenerateOutput(
+            var result = GetQuantityOfInputRequiredToGenerateOutput(
                 input,
                 OreName,
                 FuelName,
                 1);
+            return result.Item1;
+        }
+
+        public static BigInteger GetDay14Part2Answer()
+        {
+            // Given 1 trillion ORE, what is the maximum amount of FUEL you 
+            // can produce?
+            // Anser: 1893569
+            IList<string> input = GetDay14Input();
+            var result = GetQuantityOfOutputThatCanBeGeneratedByInput(
+                input,
+                OreName,
+                BigInteger.Parse("1000000000000"),
+                FuelName);
             return result;
         }
 
-        public static int GetQuantityOfComponentRequiredToGenerateOutput(
+        public static BigInteger GetQuantityOfOutputThatCanBeGeneratedByInput(
             IList<string> reactionDefinitions,
-            string component,
+            string input,
+            BigInteger inputQuantity,
+            string output)
+        {
+            // Keep trying output values until it generates the highest
+            // required input quantity without going over the provided amount.
+            BigInteger maxOutputQuantityThatWorked = 0;
+            BigInteger minOutputQuantityThatDidNotWork = int.MaxValue;
+            bool hasFoundMax = false;
+            BigInteger outputIncreaseAmount = inputQuantity;
+            BigInteger outputChangeFactor = 3;
+            while (!hasFoundMax)
+            {
+                var outputQuantityToTry = maxOutputQuantityThatWorked 
+                    + outputIncreaseAmount;
+                var res = GetQuantityOfInputRequiredToGenerateOutput(
+                    reactionDefinitions,
+                    input,
+                    output,
+                    outputQuantityToTry);
+                if (res.Item1 <= inputQuantity)
+                {
+                    maxOutputQuantityThatWorked = outputQuantityToTry;
+                }
+                else
+                {
+                    minOutputQuantityThatDidNotWork = outputQuantityToTry;
+                    outputIncreaseAmount = (BigInteger)Math.Ceiling(
+                        (double)outputIncreaseAmount / (double)outputChangeFactor);
+                }
+                if (minOutputQuantityThatDidNotWork - maxOutputQuantityThatWorked < 2)
+                    hasFoundMax = true;
+            }
+
+            return maxOutputQuantityThatWorked;
+        }
+
+        public static Tuple<BigInteger, IList<Tuple<string, BigInteger>>> GetQuantityOfInputRequiredToGenerateOutput(
+            IList<string> reactionDefinitions,
+            string input,
             string output,
-            int outputQuantity)
+            BigInteger outputQuantity)
         {
             var reactions = ParseReactions(reactionDefinitions);
             var reactionOutputDictionary = GetReactionOutputDictionary(reactions);
             if (!reactionOutputDictionary.ContainsKey(output))
                 throw new Exception($"{output} missing from reaction definitions");
-            if (reactions.Where(r => r.Inputs.Any(i => component.Equals(i.Item1))).Count() == 0)
-                throw new Exception($"{component} missing from input reaction definitions");
+            if (reactions.Where(r => r.Inputs.Any(i => input.Equals(i.Item1))).Count() == 0)
+                throw new Exception($"{input} missing from input reaction definitions");
             var inputDependents = GetInputDependents(reactions);
-            
-            int result = 0;
+
+            var resultReactions = new List<Tuple<string, BigInteger>>();
+            BigInteger resultQuantity = 0;
 
             // Starting with the desired output, work backwards through the 
             // chain until all inputs have been processed, and total up the
             // quantity of the requested component
-            var requirements = new Dictionary<string, int>
+            var requirements = new Dictionary<string, BigInteger>
             {
                 { output, outputQuantity }
             };
             // Keep looping until the only remaining requirement is just the requested component
-            while (requirements.Where(kvp => component.Equals(kvp.Key)).Count() != requirements.Count)
+            while (requirements.Where(kvp => input.Equals(kvp.Key)).Count() != requirements.Count)
             {
                 // Locate a requirement to process:
                 // Only process a requirement where none of the other requirements
@@ -68,24 +123,26 @@ namespace AdventOfCode2019.Challenges.Day14
 
                 // Determine how many repeated reactions are needed to produce
                 // the required output quantity
-                int numberOfReactionsNeeded = (int)Math.Ceiling(
+                BigInteger numberOfReactionsNeeded = (BigInteger)Math.Ceiling(
                     (decimal)requirementQuantity / reactionOutputtingRequirement.OutputQuantity);
+
+                resultReactions.Add(new Tuple<string, BigInteger>(requirement, numberOfReactionsNeeded));
 
                 // Add each reaction input as a new requirement, along with the
                 // quantity needed for the requiremed number of reactions
-                foreach (var input in reactionOutputtingRequirement.Inputs)
+                foreach (var requirementInput in reactionOutputtingRequirement.Inputs)
                 {
                     var amountOfInputRequiredForReactions =
-                        input.Item2 * numberOfReactionsNeeded;
-                    if (!requirements.ContainsKey(input.Item1))
-                        requirements.Add(input.Item1, 0);
-                    requirements[input.Item1] += amountOfInputRequiredForReactions;
+                        requirementInput.Item2 * numberOfReactionsNeeded;
+                    if (!requirements.ContainsKey(requirementInput.Item1))
+                        requirements.Add(requirementInput.Item1, 0);
+                    requirements[requirementInput.Item1] += amountOfInputRequiredForReactions;
                 }
 
             }
 
-            result = requirements[component];
-            return result;
+            resultQuantity = requirements[input];
+            return new Tuple<BigInteger, IList<Tuple<string, BigInteger>>>(resultQuantity, resultReactions);
         }
 
         public static string GetRequirementWhereNoneOfTheOtherRequirementsAreDependentOnIt(
