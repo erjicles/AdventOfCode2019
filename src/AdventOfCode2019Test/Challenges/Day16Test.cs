@@ -291,10 +291,42 @@ namespace AdventOfCode2019Test.Challenges
         }
 
         [Fact]
+        public void GetAdvancedFFTTest()
+        {
+            // 03036732577212944063491565474664 becomes 84462026.
+            // 02935109699940807407585447034323 becomes 78725270.
+            // 03081770884921959731165446850517 becomes 53553731.
+            var testData = new List<Tuple<string, int, string>>(new Tuple<string, int, string>[] {
+                new Tuple<string, int, string>(
+                    "03036732577212944063491565474664", 100, "84462026"),
+                new Tuple<string, int, string>(
+                    "02935109699940807407585447034323", 100, "78725270"),
+                new Tuple<string, int, string>(
+                    "03081770884921959731165446850517", 100, "53553731"),
+            });
+
+            foreach (var testExample in testData)
+            {
+                var result = Day16.GetAdvancedFFT(
+                    input: testExample.Item1,
+                    numberOfPhases: testExample.Item2);
+                Assert.StartsWith(testExample.Item3, result);
+            }
+        }
+
+        [Fact]
         public void GetDay16Part1AnswerTest()
         {
             string expected = "44098263";
             string actual = Day16.GetDay16Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay16Part2AnswerTest()
+        {
+            string expected = "12482168";
+            string actual = Day16.GetDay16Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

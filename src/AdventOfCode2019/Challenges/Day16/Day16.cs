@@ -1,6 +1,7 @@
 ﻿using AdventOfCode2019.IO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -19,10 +20,36 @@ namespace AdventOfCode2019.Challenges.Day16
             // After 100 phases of FFT, what are the first eight digits in 
             // the final output list?
             // Answer: 44098263
-            var basePhasePattern = new int[] { 0, 1, 0, -1 };
             var input = GetDay16Input();
-            var result = GetFFT(input, 100, basePhasePattern);
+            var result = GetFFT(input, 100, new int[] { 0, 1, 0, -1 });
             return result.Substring(0, 8);
+        }
+
+        public static string GetDay16Part2Answer()
+        {
+            // After repeating your input signal 10000 times and running 100 
+            // phases of FFT, what is the eight-digit message embedded in the 
+            // final output list?
+            // Answer: 12482168
+            var input = GetDay16Input();
+            var result = GetAdvancedFFT(input, 100);
+            return result;
+        }
+
+        public static string GetAdvancedFFT(string input, int numberOfPhases)
+        {
+            var inputBuilder = new StringBuilder(input.Length * 10000);
+            for (int i = 0; i < 10000; i++)
+                inputBuilder.Append(input);
+            input = inputBuilder.ToString();
+            int offset = int.Parse(input.Substring(0, 7));
+            var currentOutput = input.Select(d => int.Parse(d.ToString())).ToArray();
+            for (int i = 0; i < numberOfPhases; i++)
+            {
+                currentOutput = GetAdvancedPhaseOutput(currentOutput, offset);
+            }
+            var resultString = String.Join("", currentOutput);
+            return resultString.Substring(offset, 8);
         }
 
         public static string GetFFT(string input, int numberOfPhases, IList<int> basePhasePattern)
@@ -33,6 +60,27 @@ namespace AdventOfCode2019.Challenges.Day16
                 currentOutput = GetPhaseOutput(currentOutput, basePhasePattern);
             }
             return currentOutput;
+        }
+
+        public static int[] GetAdvancedPhaseOutput(int[] phaseInput, int offset)
+        {
+            if (offset > phaseInput.Length / 2)
+            {
+                var outputTotals = new int[phaseInput.Length];
+                int cumulativeTotal = 0;
+                for (int outputIndex = outputTotals.Length - 1; outputIndex >= offset; outputIndex--)
+                {
+                    cumulativeTotal += phaseInput[outputIndex];
+                    outputTotals[outputIndex] = cumulativeTotal;
+                }
+                for (int i = offset; i < phaseInput.Length; i++)
+                {
+                    outputTotals[i] = int.Parse(outputTotals[i].ToString().Last().ToString());
+                }
+                return outputTotals;
+            }
+
+            throw new Exception("This only works for large offsets");
         }
 
         public static string GetPhaseOutput(
@@ -77,34 +125,20 @@ namespace AdventOfCode2019.Challenges.Day16
             // So, for the second element of the output list, the actual 
             // pattern used would be: 
             // 0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, ....
-            
-            // Get the number of times each phase entry should be repeated
             int numberOfTimesToRepeatEachEntry = outputIndex + 1;
-
-            // For the first repetition of the phase pattern, shift right to
-            // exclude the first entry
-            // For all subsequent repetitions, include the full pattern
             int normalPhasePatternLength = basePhasePattern.Count * numberOfTimesToRepeatEachEntry;
-            int firstPhasePatternLength = normalPhasePatternLength - 1;
-
-            // Get the modded index of the phase pattern to use
-            int indexToUse;
-            if (inputIndex < firstPhasePatternLength)
-            {
-                // For the first repetition, shift right by one
-                indexToUse = inputIndex + 1;
-            }
-            else
-            {
-                // For subsequen repetitions, do not shift right
-                inputIndex -= firstPhasePatternLength;
-                indexToUse = inputIndex % normalPhasePatternLength;
-            }
-            // Convert the phase pattern index to the entry index of the base
-            // pattern
-            int basePatternIndex = indexToUse / numberOfTimesToRepeatEachEntry;
+            int basePatternIndex = ((inputIndex + 1) % normalPhasePatternLength) / numberOfTimesToRepeatEachEntry;
             int phaseValue = basePhasePattern[basePatternIndex];
             return phaseValue;
+        }
+
+        public static int GetBasePhasePatternIndex(int inputIndex, int outputIndex)
+        {
+            int numberOfTimesToRepeatEachEntry = outputIndex + 1;
+            int phasePatternLength = 4 * numberOfTimesToRepeatEachEntry;
+            int basePatternIndex = ((inputIndex + 1) % phasePatternLength) 
+                / numberOfTimesToRepeatEachEntry;
+            return basePatternIndex;
         }
 
         public static string GetDay16Input()
