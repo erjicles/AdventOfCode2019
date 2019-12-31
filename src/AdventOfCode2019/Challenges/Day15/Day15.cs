@@ -33,6 +33,48 @@ namespace AdventOfCode2019.Challenges.Day15
             return movementCommands.Count;
         }
 
+        public static int GetDay15Part2Answer()
+        {
+            // Use the repair droid to get a complete map of the area. How 
+            // many minutes will it take to fill with oxygen?
+            // Answer: 400
+            BigInteger[] program = GetDay15Input();
+            var hullMap = MapHull(program, out GridPoint robotPosition);
+            var timeToFillWithOxygen =
+                GetTotalTimeToFillOpenCellsWithOxygen(hullMap);
+            return timeToFillWithOxygen;
+        }
+
+        public static int GetTotalTimeToFillOpenCellsWithOxygen(
+            Dictionary<GridPoint, HullCellType> hullMap)
+        {
+            var alreadyChecked = new HashSet<GridPoint>();
+            var oxygenSystem = hullMap
+                .Where(kvp => HullCellType.OxygenSystem.Equals(kvp.Value))
+                .Select(kvp => kvp.Key)
+                .FirstOrDefault();
+            var emptyPoints = hullMap
+                .Where(kvp => HullCellType.Empty.Equals(kvp.Value))
+                .OrderByDescending(kvp => GridPoint.GetManhattanDistance(oxygenSystem, kvp.Key))
+                .Select(kvp => kvp.Key)
+                .ToList();
+            int maxTimeFound = 0;
+            foreach (var point in emptyPoints)
+            {
+                if (alreadyChecked.Contains(point))
+                    continue;
+                var pathToOxygenSystem = GetPathToPoint(point, oxygenSystem, hullMap);
+                if (pathToOxygenSystem.Count - 1 > maxTimeFound)
+                    maxTimeFound = pathToOxygenSystem.Count - 1;
+                foreach (var pathPoint in pathToOxygenSystem)
+                {
+                    if (!alreadyChecked.Contains(pathPoint))
+                        alreadyChecked.Add(pathPoint);
+                }
+            }
+            return maxTimeFound;
+        }
+
         public static Queue<int> GetMovementCommandsToMoveRobotToOxygenSystem(
             Dictionary<GridPoint, HullCellType> hullMap)
         {
@@ -125,7 +167,6 @@ namespace AdventOfCode2019.Challenges.Day15
                     robotPosition,
                     targetUnexploredPoint,
                     exploredPoints));
-            Console.WriteLine();
             int loopCount = 0;
             while (!IntcodeProgramStatus.Completed.Equals(programStatus)
                 && targetUnexploredPoint != null)
@@ -173,7 +214,6 @@ namespace AdventOfCode2019.Challenges.Day15
                             exploredPoints));
                 }
             }
-            Console.WriteLine();
             return exploredPoints;
         }
 
