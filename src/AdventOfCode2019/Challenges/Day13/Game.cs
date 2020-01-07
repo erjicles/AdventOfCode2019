@@ -229,35 +229,25 @@ namespace AdventOfCode2019.Challenges.Day13
 
         public void DrawGameBoard()
         {
-            int minX = GridCells.Min(cell => cell.X);
-            int maxX = GridCells.Max(cell => cell.X);
-            int minY = GridCells.Min(cell => cell.Y);
-            int maxY = GridCells.Max(cell => cell.Y);
-            //Console.WriteLine();
+            string GetBoardCellString(GridPoint gridPoint)
+            {
+                var point = new GameGridCell(gridPoint.X, gridPoint.Y);
+                bool isCellPresent = GridCells.TryGetValue(point, out var cell);
+                if (isCellPresent)
+                {
+                    return cell.DrawCell();
+                }
+                return " ";
+            }
+
             if (ClearConsoleWhenDrawingBoard)
                 Console.Clear();
-            Console.WriteLine();
-            for (int y = minY; y <= maxY; y++)
-            {
-                for (int x = minX; x <= maxX; x++)
-                {
-                    var point = new GameGridCell(x, y);
-                    bool isCellPresent = GridCells.TryGetValue(point, out var cell);
-                    if (isCellPresent)
-                    {
-                        var cellString = cell.DrawCell();
-                        Console.Write(cellString);
-                    }
-                    else
-                    {
-                        Console.Write(" ");
-                    }
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine($"Blocks Remaining: {NumberOfBlocksRemaining}");
-            Console.WriteLine($"Score: {Score}");
-            Console.WriteLine($"Time index: {_timeIndex}");
+            GridHelper.DrawGrid2D(
+                gridPoints: GridCells.Select(gc => new GridPoint(gc.X, gc.Y)).ToList(),
+                GetPointString: GetBoardCellString);
+            Console.WriteLine($"     Blocks Remaining: {NumberOfBlocksRemaining}");
+            Console.WriteLine($"     Score: {Score}");
+            Console.WriteLine($"     Time index: {_timeIndex}");
             Console.WriteLine();
         }
     }

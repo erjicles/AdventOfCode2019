@@ -44,32 +44,23 @@ namespace AdventOfCode2019.Challenges.Day11
 
         public static void DrawGrid(Dictionary<GridPoint, int> gridPaintColors)
         {
-            int minX = gridPaintColors.Min(kvp => kvp.Key.X);
-            int maxX = gridPaintColors.Max(kvp => kvp.Key.X);
-            int minY = gridPaintColors.Min(kvp => kvp.Key.Y);
-            int maxY = gridPaintColors.Max(kvp => kvp.Key.Y);
-            Console.WriteLine();
-            for (int y = maxY; y >= minY; y--)
+            string GetGridPointString(GridPoint gridPoint)
             {
-                for (int x = minX; x <= maxX; x++)
+                if (gridPaintColors.ContainsKey(gridPoint))
                 {
-                    var gridPoint = new GridPoint(x, y);
-                    if (gridPaintColors.ContainsKey(gridPoint))
-                    {
-                        var gridColor = gridPaintColors[gridPoint];
-                        if (gridColor == 1)
-                            Console.Write("#");
-                        else
-                            Console.Write(" ");
-                    }
+                    var gridColor = gridPaintColors[gridPoint];
+                    if (gridColor == 1)
+                        return "#";
                     else
-                    {
-                        Console.Write(" ");
-                    }
+                        return " ";
                 }
-                Console.WriteLine();
+                return " ";
             }
-            Console.WriteLine();
+
+            GridHelper.DrawGrid2D(
+                gridPaintColors.Select(kvp => kvp.Key).ToHashSet(),
+                GetPointString: GetGridPointString,
+                invertY: true);
         }
 
         /// <summary>

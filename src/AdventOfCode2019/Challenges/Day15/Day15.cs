@@ -92,42 +92,30 @@ namespace AdventOfCode2019.Challenges.Day15
             GridPoint robotPosition,
             Dictionary<GridPoint, HullCellType> hullMap)
         {
-            int minX = hullMap.Min(kvp => kvp.Key.X);
-            int maxX = hullMap.Max(kvp => kvp.Key.X);
-            int minY = hullMap.Min(kvp => kvp.Key.Y);
-            int maxY = hullMap.Max(kvp => kvp.Key.Y);
-            Console.WriteLine();
-            for (int y = minY; y <= maxY; y++)
+            string GetHullCellString(GridPoint point)
             {
-                Console.Write("     ");
-                for (int x = minX; x <= maxX; x++)
+                if (point.Equals(robotPosition))
                 {
-                    var point = new GridPoint(x, y);
-                    if (point.Equals(robotPosition))
-                    {
-                        Console.Write("R");
-                        continue;
-                    }
-                    if (hullMap.ContainsKey(point))
-                    {
-                        var type = hullMap[point];
-                        if (HullCellType.Wall.Equals(type))
-                            Console.Write("#");
-                        else if (HullCellType.Empty.Equals(type))
-                            Console.Write(".");
-                        else if (HullCellType.OxygenSystem.Equals(type))
-                            Console.Write("X");
-                        else
-                            throw new Exception($"Invalid type {type}");
-                    }
-                    else
-                    {
-                        Console.Write(" ");
-                    }
+                    return "R";
                 }
-                Console.WriteLine();
+                if (hullMap.ContainsKey(point))
+                {
+                    var type = hullMap[point];
+                    if (HullCellType.Wall.Equals(type))
+                        return "#";
+                    else if (HullCellType.Empty.Equals(type))
+                        return ".";
+                    else if (HullCellType.OxygenSystem.Equals(type))
+                        return "O";
+                    else
+                        throw new Exception($"Invalid type {type}");
+                }
+                return " ";
             }
-            Console.WriteLine();
+
+            GridHelper.DrawGrid2D(
+                hullMap.Select(kvp => kvp.Key).ToList(), 
+                GetHullCellString);
         }
 
         public static Dictionary<GridPoint, HullCellType> MapHull(
