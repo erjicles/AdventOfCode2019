@@ -21,7 +21,12 @@ namespace AdventOfCode2019.Challenges.Day16
             // the final output list?
             // Answer: 44098263
             var input = GetDay16Input();
-            var result = GetFFT(input, 100, new int[] { 0, 1, 0, -1 });
+            var result = GetFFT(
+                input: input, 
+                numberOfPhases: 100, 
+                basePhasePattern: new int[] { 0, 1, 0, -1 },
+                inputRepeatCount: 1,
+                skip: 0);
             return result.Substring(0, 8);
         }
 
@@ -32,62 +37,88 @@ namespace AdventOfCode2019.Challenges.Day16
             // final output list?
             // Answer: 12482168
             var input = GetDay16Input();
-            var result = GetAdvancedFFT(input, 100);
-            return result;
+            int numberToSkip = int.Parse(input.Substring(0, 7));
+            var result = GetFFT(
+                input: input,
+                numberOfPhases: 100,
+                basePhasePattern: new int[] { 0, 1, 0, -1 },
+                inputRepeatCount: 10000,
+                skip: numberToSkip);
+            return result.Substring(0, 8);
         }
 
-        public static string GetAdvancedFFT(string input, int numberOfPhases)
+        public static string GetFFT(
+            string input, 
+            int numberOfPhases, 
+            IList<int> basePhasePattern,
+            int inputRepeatCount,
+            int skip)
         {
-            var inputBuilder = new StringBuilder(input.Length * 10000);
-            for (int i = 0; i < 10000; i++)
+            // In general, computing each pass requires O(n^2) operations
+            // because each output digit is dependent on all of the input
+            // digits.
+            // However, in the special case when we are skipping at least half
+            // of the output digits, and the first entry in the base phase
+            // pattern is zero, then we observe that each output digit 
+            // (after skipping the requested number of digits) is only a
+            // cumulative sum of the corresponding input digits following it.
+            // So for each phase, we only need to calculate the sum of the
+            // input digits at the skip index and after, which is O(n).
+
+            int totalInputLength = input.Length * inputRepeatCount;
+            if (skip >= totalInputLength)
+                throw new Exception("Skipping more digits than exist");
+
+            // Construct the input
+            var inputBuilder = new StringBuilder();
+            for (int i = 0; i < inputRepeatCount; i++)
                 inputBuilder.Append(input);
-            input = inputBuilder.ToString();
-            int offset = int.Parse(input.Substring(0, 7));
-            var currentOutput = input.Select(d => int.Parse(d.ToString())).ToArray();
-            for (int i = 0; i < numberOfPhases; i++)
-            {
-                currentOutput = GetAdvancedPhaseOutput(currentOutput, offset);
-            }
-            var resultString = String.Join("", currentOutput);
-            return resultString.Substring(offset, 8);
-        }
 
-        public static string GetFFT(string input, int numberOfPhases, IList<int> basePhasePattern)
-        {
-            var currentOutput = input;
-            for (int i = 0; i < numberOfPhases; i++)
+            // Determine if we can use the fast algorithm
+            bool canUseFastAlgorithm = (skip >= inputBuilder.Length / 2)
+                && (basePhasePattern.Count >= 1 && basePhasePattern[0] == 0);
+            if (canUseFastAlgorithm)
             {
-                currentOutput = GetPhaseOutput(currentOutput, basePhasePattern);
-            }
-            return currentOutput;
-        }
-
-        public static int[] GetAdvancedPhaseOutput(int[] phaseInput, int offset)
-        {
-            if (offset > phaseInput.Length / 2)
-            {
-                var outputTotals = new int[phaseInput.Length];
-                int cumulativeTotal = 0;
-                for (int outputIndex = outputTotals.Length - 1; outputIndex >= offset; outputIndex--)
+                var currentOutput = inputBuilder.ToString(skip, totalInputLength - skip)
+                    .Select(d => int.Parse(d.ToString()))
+                    .ToArray();
+                int multiplier = basePhasePattern.Count > 1 ? basePhasePattern[1] : 0;
+                for (int phaseIndex = 0; phaseIndex < numberOfPhases; phaseIndex++)
                 {
-                    cumulativeTotal += phaseInput[outputIndex];
-                    outputTotals[outputIndex] = cumulativeTotal;
+                    currentOutput = GetFastPhaseOutput(currentOutput, multiplier);
                 }
-                for (int i = offset; i < phaseInput.Length; i++)
-                {
-                    outputTotals[i] = int.Parse(outputTotals[i].ToString().Last().ToString());
-                }
-                return outputTotals;
+                return String.Join("", currentOutput);
             }
-
-            throw new Exception("This only works for large offsets");
+            else
+            {
+                var currentOutput = inputBuilder.ToString()
+                    .Select(d => int.Parse(d.ToString()))
+                    .ToArray();
+                for (int phaseIndex = 0; phaseIndex < numberOfPhases; phaseIndex++)
+                {
+                    currentOutput = GetPhaseOutput(currentOutput, basePhasePattern);
+                }
+                return String.Join("", currentOutput);
+            }
         }
 
-        public static string GetPhaseOutput(
-            string phaseInput,
+        public static int[] GetFastPhaseOutput(int[] phaseInput, int multiplier)
+        {
+            var outputTotals = new int[phaseInput.Length];
+            int cumulativeTotal = 0;
+            for (int outputIndex = outputTotals.Length - 1; outputIndex >= 0; outputIndex--)
+            {
+                cumulativeTotal += phaseInput[outputIndex] * multiplier;
+                outputTotals[outputIndex] = GetOnesDigit(cumulativeTotal);
+            }
+            return outputTotals;
+        }
+
+        public static int[] GetPhaseOutput(
+            int[] phaseInput,
             IList<int> basePhasePattern)
         {
-            var result = new List<string>();
+            var result = new int[phaseInput.Length];
             for (int outputIndex = 0; outputIndex < phaseInput.Length; outputIndex++)
             {
                 int outputTotal = 0;
@@ -98,11 +129,15 @@ namespace AdventOfCode2019.Challenges.Day16
                     int outputContribution = inputValue * phaseEntry;
                     outputTotal += outputContribution;
                 }
-                // Get the last digit of the output total
-                var outputString = outputTotal.ToString();
-                result.Add(outputString.Substring(outputString.Length - 1, 1));
+                result[outputIndex] = GetOnesDigit(outputTotal);
             }
-            return String.Join("", result);
+            return result;
+        }
+
+        public static int GetOnesDigit(int value)
+        {
+            int result = Math.Abs(value) % 10;
+            return result;
         }
 
         public static int GetPhaseEntry(

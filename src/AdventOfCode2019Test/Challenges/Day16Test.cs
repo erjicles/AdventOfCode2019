@@ -243,6 +243,38 @@ namespace AdventOfCode2019Test.Challenges
         }
 
         [Fact]
+        public void GetOnesDigitTest()
+        {
+            var testData = new List<Tuple<int, int>>(new Tuple<int, int>[] {
+                new Tuple<int, int>(1, 1),
+                new Tuple<int, int>(4, 4),
+                new Tuple<int, int>(7, 7),
+                new Tuple<int, int>(10, 0),
+                new Tuple<int, int>(13, 3),
+                new Tuple<int, int>(17, 7),
+                new Tuple<int, int>(65, 5),
+                new Tuple<int, int>(82, 2),
+                new Tuple<int, int>(882, 2),
+                new Tuple<int, int>(8886, 6),
+                new Tuple<int, int>(-1, 1),
+                new Tuple<int, int>(-4, 4),
+                new Tuple<int, int>(-7, 7),
+                new Tuple<int, int>(-10, 0),
+                new Tuple<int, int>(-13, 3),
+                new Tuple<int, int>(-17, 7),
+                new Tuple<int, int>(-65, 5),
+                new Tuple<int, int>(-82, 2),
+                new Tuple<int, int>(-882, 2),
+                new Tuple<int, int>(-8886, 6)
+            });
+            foreach (var testExample in testData)
+            {
+                var result = Day16.GetOnesDigit(testExample.Item1);
+                Assert.Equal(testExample.Item2, result);
+            }
+        }
+
+        [Fact]
         public static void GetFFTTest()
         {
             // Test exampels taken from here:
@@ -285,32 +317,52 @@ namespace AdventOfCode2019Test.Challenges
                 var result = Day16.GetFFT(
                     input: testExample.Item2,
                     numberOfPhases: testExample.Item3,
-                    basePhasePattern: testExample.Item1);
+                    basePhasePattern: testExample.Item1,
+                    inputRepeatCount: 1,
+                    skip: 0);
                 Assert.StartsWith(testExample.Item4, result);
             }
         }
 
         [Fact]
-        public void GetAdvancedFFTTest()
+        public void GetFastFFTTest()
         {
+            // Test example format:
+            // 1) Base phase pattern
+            // 2) Input signal
+            // 3) Number of phases
+            // 4) Number of times to repeat the input
+            // 5) Number to skip
             // 03036732577212944063491565474664 becomes 84462026.
             // 02935109699940807407585447034323 becomes 78725270.
             // 03081770884921959731165446850517 becomes 53553731.
-            var testData = new List<Tuple<string, int, string>>(new Tuple<string, int, string>[] {
-                new Tuple<string, int, string>(
-                    "03036732577212944063491565474664", 100, "84462026"),
-                new Tuple<string, int, string>(
-                    "02935109699940807407585447034323", 100, "78725270"),
-                new Tuple<string, int, string>(
-                    "03081770884921959731165446850517", 100, "53553731"),
+            var testData = new List<Tuple<int[], string, int, int, int, string>>(new Tuple<int[], string, int, int, int, string>[] {
+                new Tuple<int[], string, int, int, int, string>(
+                    new int[] {0, 1, 0, -1 },
+                    "000123", 1, 1, 3, "653"),
+                new Tuple<int[], string, int, int, int, string>(
+                    new int[] {0, 1, 0, -1 },
+                    "00000000000000006789678967896789", 1, 1, 16, "0479047904790479"),
+                new Tuple<int[], string, int, int, int, string>(
+                    new int[] {0, 1, 0, -1 },
+                    "03036732577212944063491565474664", 100, 10000, 0303673, "84462026"),
+                new Tuple<int[], string, int, int, int, string>(
+                    new int[] {0, 1, 0, -1 },
+                    "02935109699940807407585447034323", 100, 10000, 0293510, "78725270"),
+                new Tuple<int[], string, int, int, int, string>(
+                    new int[] {0, 1, 0, -1 },
+                    "03081770884921959731165446850517", 100, 10000, 0308177, "53553731"),
             });
 
             foreach (var testExample in testData)
             {
-                var result = Day16.GetAdvancedFFT(
-                    input: testExample.Item1,
-                    numberOfPhases: testExample.Item2);
-                Assert.StartsWith(testExample.Item3, result);
+                var result = Day16.GetFFT(
+                    input: testExample.Item2,
+                    numberOfPhases: testExample.Item3,
+                    basePhasePattern: testExample.Item1,
+                    inputRepeatCount: testExample.Item4,
+                    skip: testExample.Item5);
+                Assert.StartsWith(testExample.Item6, result);
             }
         }
 
