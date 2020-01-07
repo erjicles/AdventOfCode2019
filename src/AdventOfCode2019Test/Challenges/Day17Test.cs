@@ -2,6 +2,7 @@
 using AdventOfCode2019.Grid;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using Xunit;
 
@@ -111,6 +112,14 @@ namespace AdventOfCode2019Test.Challenges
         {
             int expected = 8928;
             int actual = Day17.GetDay17Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay17Part2AnswerTest()
+        {
+            BigInteger expected = 880360;
+            BigInteger actual = Day17.GetDay17Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

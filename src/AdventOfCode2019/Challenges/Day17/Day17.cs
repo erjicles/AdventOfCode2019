@@ -24,12 +24,116 @@ namespace AdventOfCode2019.Challenges.Day17
             // Run your ASCII program. What is the sum of the alignment 
             // parameters for the scaffold intersections?
             // Answer: 8928
-            var scaffoldMap = PerformScaffoldScan();
+            var scaffoldMap = PerformInitialScan();
             DrawScaffold(scaffoldMap);
             var scaffoldCells = GetScaffoldCells(scaffoldMap);
             var scaffoldIntersections = GetScaffoldIntersections(scaffoldCells);
             int alignmentParameterSum = GetCameraCalibrationNumber(scaffoldIntersections);
             return alignmentParameterSum;
+        }
+
+        public static BigInteger GetDay17Part2Answer()
+        {
+            // After visiting every part of the scaffold at least once, how 
+            // much dust does the vacuum robot report it has collected?
+            // Answer: 880360
+            BigInteger result = RunVaccuumRobot(false);
+            return result;
+        }
+
+        public static BigInteger RunVaccuumRobot(bool isManualInput)
+        {
+            // Upon inspection, the following commands solve the problem:
+            // A,B,A,B,A,C,B,C,A,C
+            // A: L,6,R,6,6,L,6 
+            // B: R,6,6,L,5,5,L,4,L,6
+            // C: L,5,5,L,5,5,L,4,L,6
+            BigInteger[] program = GetDay17Input();
+            program[0] = 2;
+            var encodedCommands = EncodeRobotCommands(
+                mainMovementRoutine: "A,B,A,B,A,C,B,C,A,C",
+                movementFunctionA: "L,6,R,6,6,L,6",
+                movementFunctionB: "R,6,6,L,5,5,L,4,L,6",
+                movementFunctionC: "L,5,5,L,5,5,L,4,L,6",
+                continuousVideoFeed: false);
+            IInputProvider inputProvider;
+            if (isManualInput)
+            {
+                inputProvider = new ConsoleInputProvider();
+            }
+            else
+            {
+                inputProvider = new BufferedInputProvider();
+            }
+            var outputListener = new ListOutputListener();
+            IntcodeComputer computer = new IntcodeComputer(inputProvider, outputListener);
+            computer.LoadProgram(program);
+            var computerStatus = IntcodeProgramStatus.Running;
+            int outputStartIndex = 0;
+            int commandIndex = 0;
+            while (IntcodeProgramStatus.Running.Equals(computerStatus)
+                || IntcodeProgramStatus.AwaitingInput.Equals(computerStatus))
+            {
+                // Provide inputs if automated
+                if (IntcodeProgramStatus.AwaitingInput.Equals(computerStatus)
+                    && !isManualInput)
+                {
+                    ((BufferedInputProvider)inputProvider).AddInputValue(encodedCommands[commandIndex]);
+                    Console.Write(encodedCommands[commandIndex]);
+                    commandIndex++;
+                }
+
+                // Run program
+                computerStatus = computer.RunProgram();
+
+                // Display output
+                if (outputListener.Values.Count > 0)
+                {
+                    DisplayProgramOutput(outputListener, outputStartIndex);
+                    outputStartIndex = outputListener.Values.Count;
+                }
+            }
+            return outputListener.Values.LastOrDefault();
+        }
+
+        public static void DisplayProgramOutput(ListOutputListener outputListener, int startIndex)
+        {
+            var outputStrings = GetProgramOutputStrings(outputListener.Values.GetRange(startIndex, outputListener.Values.Count - startIndex));
+            Console.WriteLine();
+            foreach (var outputString in outputStrings)
+            {
+                Console.WriteLine("     " + outputString);
+            }
+        }
+
+        public static IList<BigInteger> EncodeRobotCommands(
+            string mainMovementRoutine,
+            string movementFunctionA,
+            string movementFunctionB,
+            string movementFunctionC,
+            bool continuousVideoFeed)
+        {
+            var result = new List<BigInteger>();
+            result.AddRange(EncodeRobotCommandString(mainMovementRoutine));
+            result.AddRange(EncodeRobotCommandString(movementFunctionA));
+            result.AddRange(EncodeRobotCommandString(movementFunctionB));
+            result.AddRange(EncodeRobotCommandString(movementFunctionC));
+            result.AddRange(EncodeRobotCommandString(continuousVideoFeed ? "y" : "n"));
+            return result;
+        }
+
+        public static BigInteger[] EncodeRobotCommandString(string commandString)
+        {
+            var result = new List<BigInteger>();
+            var separatedCommands = commandString.Split(",");
+            foreach (var command in separatedCommands)
+            {
+                if (result.Count > 0)
+                    result.Add(char.ConvertToUtf32(",", 0));
+                result.Add(char.ConvertToUtf32(command, 0));
+            }
+            result.Add(10);
+            return result.ToArray();
         }
 
         public static int GetCameraCalibrationNumber(ICollection<GridPoint> scaffoldIntersections)
@@ -103,7 +207,7 @@ namespace AdventOfCode2019.Challenges.Day17
             return result;
         }
 
-        public static Dictionary<GridPoint, string> PerformScaffoldScan()
+        public static Dictionary<GridPoint, string> PerformInitialScan()
         {
             BigInteger[] program = GetDay17Input();
             var inputProvider = new BufferedInputProvider();
@@ -111,22 +215,22 @@ namespace AdventOfCode2019.Challenges.Day17
             IntcodeComputer computer = new IntcodeComputer(inputProvider, outputListener);
             computer.LoadProgram(program);
             computer.RunProgram();
-            //var programStatus = IntcodeProgramStatus.Running;
-            //while (IntcodeProgramStatus.Running.Equals(programStatus)
-            //    || IntcodeProgramStatus.AwaitingInput.Equals(programStatus))
-            //{
-            //    programStatus = computer.RunProgram();
-            //}
-
-            var scaffoldMap = ProcessScan(outputListener.Values);
+            var scaffoldMap = ProcessInitialScan(outputListener.Values);
             return scaffoldMap;
         }
 
-        public static Dictionary<GridPoint, string> ProcessScan(IList<BigInteger> cameraScanOutput)
+        public static Dictionary<GridPoint, string> ProcessInitialScan(IList<BigInteger> cameraScanOutput)
+        {
+            var rowStrings = GetProgramOutputStrings(cameraScanOutput);
+            var result = ProcessScan(rowStrings);
+            return result;
+        }
+
+        public static IList<string> GetProgramOutputStrings(IList<BigInteger> programOutput)
         {
             var rowStrings = new List<string>();
             var rowStringBuilder = new StringBuilder();
-            foreach (int cameraOutputCode in cameraScanOutput)
+            foreach (int cameraOutputCode in programOutput)
             {
                 // If it's a newline, then set x and y for the next line
                 if (cameraOutputCode == 10)
@@ -140,9 +244,7 @@ namespace AdventOfCode2019.Challenges.Day17
             }
             if (rowStringBuilder.Length > 0)
                 rowStrings.Add(rowStringBuilder.ToString());
-
-            var result = ProcessScan(rowStrings);
-            return result;
+            return rowStrings;
         }
 
         public static Dictionary<GridPoint, string> ProcessScan(IList<string> rowStrings)

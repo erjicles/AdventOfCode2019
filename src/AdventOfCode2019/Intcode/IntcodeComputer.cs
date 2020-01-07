@@ -301,6 +301,8 @@ namespace AdventOfCode2019.Intcode
             if (parameterMode == 0)
             {
                 // Interpret as position
+                if (parameterValue < 0)
+                    return 0;
                 return _program[GetMemoryAddress(parameterValue)];
             }
             else if (parameterMode == 1)
@@ -311,7 +313,10 @@ namespace AdventOfCode2019.Intcode
             else if (parameterMode == 2)
             {
                 // Interpret as relative position
-                return _program[_relativeBase + GetMemoryAddress(parameterValue)];
+                BigInteger memoryAddress = _relativeBase + parameterValue;
+                if (memoryAddress < 0)
+                    return 0;
+                return _program[GetMemoryAddress(memoryAddress)];
             }
             else
             {
