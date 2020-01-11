@@ -83,11 +83,108 @@ namespace AdventOfCode2019.Grid
             string prependText,
             bool invertY)
         {
+            var renderingData = GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColor,
+                prependText: prependText,
+                invertY: invertY);
+            foreach (var renderingBlock in renderingData)
+            {
+                var blockColor = renderingBlock.Item2;
+                var consoleColor = Console.ForegroundColor;
+                if (!consoleColor.Equals(blockColor))
+                {
+                    Console.ForegroundColor = blockColor;
+                }
+                Console.Write(renderingBlock.Item1);
+                if (!consoleColor.Equals(blockColor))
+                {
+                    Console.ForegroundColor = consoleColor;
+                }
+            }
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString)
+        {
+            return GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
+                prependText: "     ",
+                invertY: false);
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor)
+        {
+            return GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColor,
+                prependText: "     ",
+                invertY: false);
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            string appendText)
+        {
+            return GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
+                prependText: appendText,
+                invertY: false);
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor,
+            string appendText)
+        {
+            return GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColor,
+                prependText: appendText,
+                invertY: false);
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            bool invertY)
+        {
+            return GetGridRenderingData(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
+                prependText: "     ",
+                invertY: invertY);
+        }
+
+        public static IList<Tuple<string, ConsoleColor>> GetGridRenderingData(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor,
+            string prependText,
+            bool invertY)
+        {
+            var result = new List<Tuple<string, ConsoleColor>>();
+            var builder = new StringBuilder();
+            builder.Append(Environment.NewLine);
+
             int minX = gridPoints.Min(p => p.X);
             int maxX = gridPoints.Max(p => p.X);
             int minY = gridPoints.Min(p => p.Y);
             int maxY = gridPoints.Max(p => p.Y);
-            Console.WriteLine();
 
             var yDirection = invertY ? -1 : 1;
             var yStart = invertY ? maxY : minY;
@@ -96,28 +193,30 @@ namespace AdventOfCode2019.Grid
             for (int yIndex = 0; yIndex <= yDiff; yIndex++)
             {
                 int y = yStart + (yIndex * yDirection);
-                Console.Write(prependText);
+                builder.Append(prependText);
                 for (int x = minX; x <= maxX; x++)
                 {
                     var point = new GridPoint(x, y);
                     var pointString = GetPointString(point);
-                    var oldColor = Console.ForegroundColor;
-                    var color = GetPointColor(point);
-                    if (!oldColor.Equals(color))
+                    var pointColor = GetPointColor(point);
+                    if (!pointColor.Equals(Console.ForegroundColor))
                     {
-                        Console.ForegroundColor = color;
+                        result.Add(new Tuple<string, ConsoleColor>(builder.ToString(), Console.ForegroundColor));
+                        builder.Clear();
                     }
-                    Console.Write(pointString);
-                    if (!oldColor.Equals(color))
+                    builder.Append(pointString);
+                    if (!pointColor.Equals(Console.ForegroundColor))
                     {
-                        Console.ForegroundColor = oldColor;
+                        result.Add(new Tuple<string, ConsoleColor>(builder.ToString(), pointColor));
+                        builder.Clear();
                     }
                 }
-                Console.WriteLine();
+                builder.Append(Environment.NewLine);
             }
-            Console.WriteLine();
+            builder.Append(Environment.NewLine);
+            result.Add(new Tuple<string, ConsoleColor>(builder.ToString(), Console.ForegroundColor));
+            return result;
         }
-
 
     }
 }

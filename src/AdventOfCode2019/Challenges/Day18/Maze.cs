@@ -271,6 +271,21 @@ namespace AdventOfCode2019.Challenges.Day18
             return true;
         }
 
+        public IList<GridPoint> GetRobotPathFromNodePath(IList<GraphNode<GridPoint>> nodePath)
+        {
+            var result = new List<GridPoint>();
+            for (int i = 0; i < nodePath.Count - 1; i++)
+            {
+                var startNode = nodePath[i];
+                var endNode = nodePath[i + 1];
+                var edgeKey = new Tuple<GridPoint, GridPoint>(startNode.Node, endNode.Node);
+                if (i > 0)
+                    result.RemoveAt(result.Count - 1);
+                result.AddRange(EdgeShortestPaths[edgeKey]);
+            }
+            return result;
+        }
+
         /// <summary>
         /// Gets all keys that lie along the given node path, where each edge
         /// is in the EdgeKeys proeprty.

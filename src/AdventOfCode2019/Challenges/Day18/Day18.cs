@@ -24,14 +24,19 @@ namespace AdventOfCode2019.Challenges.Day18
             var maze = new Maze(mazeDefinition);
             var initialMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>());
             initialMazeState.DrawMazeState();
-            var neighbors = initialMazeState.GetNeighboringMazeStatesWithCosts();
-            Console.WriteLine("Neighboring states and costs:");
-            Console.WriteLine($"{string.Join("; ", neighbors.Select(n => GetNeighboringMazeStateString(n)))}");
             var shortestPath = GetShortestPathToCollectAllKeys(maze);
             Console.WriteLine($"{MazeState.GetPathString(shortestPath.Path, false)}");
             var result = shortestPath.TotalPathCost;
             //var result = 3216;
             return result;
+        }
+
+        public static PathResult<MazeState> GetDay18Part1AnswerPath()
+        {
+            var mazeDefinition = GetDay18Input();
+            var maze = new Maze(mazeDefinition);
+            var shortestPath = GetShortestPathToCollectAllKeys(maze);
+            return shortestPath;
         }
 
         public static int GetDay18Part2Answer()
@@ -43,13 +48,18 @@ namespace AdventOfCode2019.Challenges.Day18
             var maze = new Maze(mazeDefinition, true);
             var initialMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>());
             initialMazeState.DrawMazeState();
-            var neighbors = initialMazeState.GetNeighboringMazeStatesWithCosts();
-            Console.WriteLine("Neighboring states and costs:");
-            Console.WriteLine($"{string.Join("; ", neighbors.Select(n => GetNeighboringMazeStateString(n)))}");
             var shortestPath = GetShortestPathToCollectAllKeys(maze);
             Console.WriteLine($"{MazeState.GetPathString(shortestPath.Path, false)}");
             var result = shortestPath.TotalPathCost;
             return result;
+        }
+
+        public static PathResult<MazeState> GetDay18Part2AnswerPath()
+        {
+            var mazeDefinition = GetDay18Input();
+            var maze = new Maze(mazeDefinition, true);
+            var shortestPath = GetShortestPathToCollectAllKeys(maze);
+            return shortestPath;
         }
 
         public static string GetNeighboringMazeStateString(Tuple<MazeState, int, int> neighbor)
@@ -76,14 +86,11 @@ namespace AdventOfCode2019.Challenges.Day18
             {
                 var result = new List<MazeState>();
 
-                var neighboringStatesWithCosts = mazeState.GetNeighboringMazeStatesWithCosts();
-                foreach (var neighboringStateWithCost in neighboringStatesWithCosts)
+                var neighboringStatesWithRobotPaths = mazeState.GetNeighboringMazeStatesWithCosts();
+                foreach (var neighboringStateWithCost in neighboringStatesWithRobotPaths)
                 {
                     // Get the new key reached by the position that moved
                     // from the current state to this neighbor
-                    //var positionThatMovedIndex = neighboringStateWithCost.Item3;
-                    //var finalGridPointOfPositionThatMoved = neighboringStateWithCost.Item1.CurrentPositions[positionThatMovedIndex];
-                    //var neighborKey = mazeState.Maze.CellsWithKeys[finalGridPointOfPositionThatMoved];
 
                     var edgeKey = new Tuple<string, string>(
                         mazeState.MazeStateSignature,

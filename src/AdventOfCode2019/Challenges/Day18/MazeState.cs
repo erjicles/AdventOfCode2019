@@ -49,7 +49,8 @@ namespace AdventOfCode2019.Challenges.Day18
         /// <summary>
         /// Retrieves all neighboring maze states that can be reached by
         /// moving one robot to an accessible key.
-        /// Item2 is the cost of moving from the current state to the neighbor.
+        /// Item2 is the cost of moving the robot from the current state to
+        /// the neighboring state.
         /// Item3 is the index of the position that moved.
         /// </summary>
         /// <returns></returns>
@@ -97,8 +98,8 @@ namespace AdventOfCode2019.Challenges.Day18
                 if (!canReachTarget)
                     continue;
                 var shortestPath = Maze.ShortestPathsBetweenKeysIgnoringDoors[edgeKey];
-                var keysCollectedAlongPath = Maze.GetKeysAlongPath(shortestPath);
                 var totalCost = shortestPath.Count - 1;
+                var keysCollectedAlongPath = Maze.GetKeysAlongPath(shortestPath);
 
                 //// THIS CODE WORKS IN THE GENERAL CASE WHEN THE SIMPLIFYING ASSUMPTION IS NOT MET
                 //int Heuristic(GridPoint currentCell)
@@ -117,7 +118,8 @@ namespace AdventOfCode2019.Challenges.Day18
                 //if (nodePathToTargetKeyCell.Path.Count == 0)
                 //    continue;
                 //var keysCollectedAlongPath = Maze.GetKeysCollectedAlongNodePath(nodePathToTargetKeyCell.Path);
-                //var totalCost = nodePathToTargetKeyCell.TotalPathCost;
+                //var shortestPath = Maze.GetRobotPathFromNodePath(nodePathToTargetKeyCell.Path);
+                //var totalCost = shortestPath.Count - 1;
 
                 var endKeysCollected = new SortedDictionary<string, string>(KeysCollected);
                 foreach (var key in keysCollectedAlongPath)
@@ -140,9 +142,44 @@ namespace AdventOfCode2019.Challenges.Day18
             return result;
         }
 
+        public static IList<GridPoint> GetRobotPathBetweenMazeStates(MazeState startState, MazeState endState)
+        {
+            int positionIndex = GetPositionThatChangedIndex(startState, endState);
+
+            var edgeKey = new Tuple<GridPoint, GridPoint>(
+                startState.CurrentPositions[positionIndex],
+                endState.CurrentPositions[positionIndex]);
+            var shortestPath = startState.Maze.ShortestPathsBetweenKeysIgnoringDoors[edgeKey];
+
+            //int Heuristic(GridPoint currentCell)
+            //{
+            //    return GridPoint.GetManhattanDistance(currentCell, endState.CurrentPositions[positionIndex]);
+            //}
+            //bool GetCanEnterNode(GridPoint point)
+            //{
+            //    return startState.Maze.GetCanEnterCell(point, startState.KeysCollected);
+            //}
+            //var pathAlongNodes = startState.Maze.MazeGraph.GetShortestPathViaNodes(
+            //    start: startState.CurrentPositions[positionIndex],
+            //    end: endState.CurrentPositions[positionIndex],
+            //    Heuristic: Heuristic,
+            //    GetCanEnterNode: GetCanEnterNode);
+            //var shortestPath = startState.Maze.GetRobotPathFromNodePath(pathAlongNodes.Path);
+
+            return shortestPath;
+        }
+
         public void DrawMazeState()
         {
             GridHelper.DrawGrid2D(
+                gridPoints: Maze.MazeCells.Select(kvp => kvp.Key).ToList(),
+                GetPointString: GetCellString,
+                GetPointColor: GetCellColor);
+        }
+
+        public IList<Tuple<string, ConsoleColor>> GetMazeStateRenderingData()
+        {
+            return GridHelper.GetGridRenderingData(
                 gridPoints: Maze.MazeCells.Select(kvp => kvp.Key).ToList(),
                 GetPointString: GetCellString,
                 GetPointColor: GetCellColor);
