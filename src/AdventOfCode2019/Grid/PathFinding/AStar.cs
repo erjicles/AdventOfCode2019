@@ -16,9 +16,9 @@ namespace AdventOfCode2019.Grid.PathFinding
         /// <param name="endPoint"></param>
         /// <param name="heuristic"></param>
         /// <returns></returns>
-        public static IList<T> GetPath<T>(
-            T startPoint, 
-            T endPoint, 
+        public static PathResult<T> GetPath<T>(
+            T startPoint,
+            T endPoint,
             Func<T, int> Heuristic,
             Func<T, IList<T>> GetNeighbors,
             Func<T, T, int> GetEdgeCost)
@@ -45,87 +45,71 @@ namespace AdventOfCode2019.Grid.PathFinding
             //                  add it to the open list and set its g
 
             var startNode = new AStarNode<T>(startPoint, 0, Heuristic(startPoint));
-            var openSet = new Dictionary<T, AStarNode<T>>()
-            {
-                { startPoint, startNode }
-            };
-            var closedSet = new Dictionary<T, AStarNode<T>>();
+            int startPointHScore = Heuristic(startPoint);
+            var openSet = new SortedDictionary<int, HashSet<T>>();
+            openSet.Add(startPointHScore, new HashSet<T>() { startPoint });
+            var currentFScores = new Dictionary<T, int>() { { startPoint, startPointHScore } };
+            var cameFrom = new Dictionary<T, T>();
+            var gScore = new Dictionary<T, int>() { { startPoint, 0 } };
+
             while (openSet.Count > 0)
             {
-                var currentNode = openSet
-                    .OrderBy(kvp => kvp.Value.FScore)
-                    .Select(kvp => kvp.Value)
-                    .FirstOrDefault();
+                var lowestFScore = openSet.Keys.First();
+                var current = openSet[lowestFScore].First();
 
-                if (endPoint.Equals(currentNode.Node))
+                if (endPoint.Equals(current))
                 {
-                    return ReconstructPath(currentNode);
+                    var result = PathResult<T>.ReconstructPath(current, cameFrom, gScore);
+                    return result;
                 }
 
-                openSet.Remove(currentNode.Node);
-                if (!closedSet.ContainsKey(currentNode.Node))
-                    closedSet.Add(currentNode.Node, currentNode);
+                openSet[lowestFScore].Remove(current);
+                if (openSet[lowestFScore].Count == 0)
+                    openSet.Remove(lowestFScore);
+                currentFScores.Remove(current);
 
-                var neighborValues = GetNeighbors(currentNode.Node);
-                foreach (var neighborValue in neighborValues)
+                var neighbors = GetNeighbors(current);
+                foreach (var neighbor in neighbors)
                 {
-                    int neighborGScore = currentNode.GScore + GetEdgeCost(currentNode.Node, neighborValue);
-                    int neighborHScore = Heuristic(neighborValue);
-                    bool isInOpenSet = openSet.ContainsKey(neighborValue);
-                    bool isInClosedSet = closedSet.ContainsKey(neighborValue);
+                    if (!gScore.ContainsKey(neighbor))
+                        gScore.Add(neighbor, int.MaxValue);
+                    var neighborGScore = gScore[current] + GetEdgeCost(current, neighbor);
+                    if (neighborGScore < gScore[neighbor])
+                    {
+                        if (!cameFrom.ContainsKey(neighbor))
+                            cameFrom.Add(neighbor, current);
+                        cameFrom[neighbor] = current;
+                        gScore[neighbor] = neighborGScore;
 
-                    // if (neighbor has lower g value than current and is in the closed list) :
-                    //      replace the neighbor with the new, lower, g value
-                    //      current node is now the neighbor's parent       
-                    if (neighborGScore < currentNode.GScore
-                        && isInClosedSet)
-                    {
-                        var neighborNode = closedSet[neighborValue];
-                        neighborNode.GScore = neighborGScore;
-                        neighborNode.Parent = currentNode;
-                    }
-                    // else if (current g value is lower and this neighbor is in the open list ) :
-                    //      replace the neighbor with the new, lower, g value
-                    //      change the neighbor's parent to our current node
-                    else if (currentNode.GScore < neighborGScore
-                        && isInOpenSet)
-                    {
-                        var neighborNode = openSet[neighborValue];
-                        neighborNode.GScore = neighborGScore;
-                        neighborNode.Parent = currentNode;
-                    }
-                    // else if this neighbor is not in both lists:
-                    //      add it to the open list and set its g
-                    else if (!isInOpenSet && !isInClosedSet)
-                    {
-                        var neighborNode = new AStarNode<T>(neighborValue, neighborGScore, neighborHScore)
+                        var neighborFScore = gScore[neighbor] + Heuristic(neighbor);
+
+                        if (currentFScores.ContainsKey(neighbor))
                         {
-                            Parent = currentNode
-                        };
-                        openSet.Add(neighborValue, neighborNode);
+                            int currentNeighborFScore = currentFScores[neighbor];
+                            if (currentNeighborFScore != neighborFScore)
+                            {
+                                openSet[currentNeighborFScore].Remove(neighbor);
+                                if (openSet[currentNeighborFScore].Count == 0)
+                                    openSet.Remove(currentNeighborFScore);
+                            }
+                            currentFScores[neighbor] = neighborFScore;
+                        }
+                        else
+                        {
+                            currentFScores.Add(neighbor, neighborFScore);
+                        }
+
+                        if (!openSet.ContainsKey(neighborFScore))
+                            openSet.Add(neighborFScore, new HashSet<T>());
+                        if (!openSet[neighborFScore].Contains(neighbor))
+                            openSet[neighborFScore].Add(neighbor);
+                        if (!currentFScores.ContainsKey(neighbor))
+                            currentFScores.Add(neighbor, neighborFScore);
                     }
                 }
             }
 
-            return new List<T>();
-        }
-
-        public static IList<T> ReconstructPath<T>(AStarNode<T> endNode)
-        {
-            // Starting with the last node in the path, work backwards through
-            // the parents to reconstruct the full path
-            var currentNode = endNode;
-            var result = new List<T>()
-            {
-                currentNode.Node
-            };
-
-            while (currentNode.Parent != null)
-            {
-                currentNode = currentNode.Parent;
-                result.Insert(0, currentNode.Node);
-            }
-            return result;
+            return new PathResult<T>(new List<T>(), 0);
         }
     }
 }

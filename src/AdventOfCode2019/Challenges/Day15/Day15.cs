@@ -253,14 +253,14 @@ namespace AdventOfCode2019.Challenges.Day15
                 return GridPoint.GetManhattanDistance(p, targetPoint);
             }
 
-            var path = AStar.GetPath<GridPoint>(
+            var aStarResult = AStar.GetPath<GridPoint>(
                 startPoint: robotPosition,
                 endPoint: targetPoint,
                 Heuristic: Heuristic,
                 GetNeighbors: GetNeighbors,
                 GetEdgeCost: (p1, p2) => { return 1; });
 
-            return path;
+            return aStarResult.Path;
         }
 
         public static IList<GridPoint> GetAdjacentPoints(GridPoint point)
