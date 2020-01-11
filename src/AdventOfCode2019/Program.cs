@@ -18,6 +18,7 @@ using AdventOfCode2019.Challenges.Day15;
 using AdventOfCode2019.Challenges.Day16;
 using AdventOfCode2019.Challenges.Day17;
 using AdventOfCode2019.Challenges.Day18;
+using AdventOfCode2019.Challenges.Day19;
 
 namespace AdventOfCode2019
 {
@@ -83,6 +84,8 @@ namespace AdventOfCode2019
             // Day 18
             Console.WriteLine($"Day 18 - Part 1: {Day18.GetDay18Part1Answer()}");
             Console.WriteLine($"Day 18 - Part 2: {Day18.GetDay18Part2Answer()}");
+            // Day 19
+            Console.WriteLine($"Day 19 - Part 1: {Day19.GetDay19Part1Answer()}");
         }
     }
 }
