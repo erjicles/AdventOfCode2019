@@ -6,7 +6,7 @@ namespace ConsoleStreamRenderer
     {
         static void Main(string[] args)
         {
-            Day18Renderer.RenderDay18Part1();
+            Day18Renderer.RenderDay18Part2();
         }
     }
 }

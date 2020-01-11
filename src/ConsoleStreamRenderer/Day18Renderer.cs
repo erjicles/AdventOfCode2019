@@ -1,17 +1,38 @@
 ﻿using AdventOfCode2019.Challenges.Day18;
+using AdventOfCode2019.Grid.PathFinding;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ConsoleStreamRenderer
 {
     public static class Day18Renderer
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
         public static void RenderDay18Part1()
         {
-            Console.WriteLine("Processing day 18 - part 1...");
-            var mazeStatePathResult = Day18.GetDay18Part1AnswerPath();
+            RenderDay18(1);
+        }
+        public static void RenderDay18Part2()
+        {
+            RenderDay18(2);
+        }
+        public static void RenderDay18(int part)
+        {
+            Console.WriteLine($"Processing day 18 - part {part}...");
+            PathResult<MazeState> mazeStatePathResult;
+            if (part == 1)
+                mazeStatePathResult = Day18.GetDay18Part1AnswerPath();
+            else
+                mazeStatePathResult = Day18.GetDay18Part2AnswerPath();
+            int imageNumber = 0;
             for (int i = 0; i < mazeStatePathResult.Path.Count - 1; i++)
             {
                 var startState = mazeStatePathResult.Path[i];
@@ -32,8 +53,12 @@ namespace ConsoleStreamRenderer
                         keysCollected: startState.KeysCollected);
                     var stateFrame = new Frame(intermediateState.GetMazeStateRenderingData());
                     var renderer = new ConsoleStreamRenderer();
-                    renderer.Frames = new List<Frame>() { stateFrame };
-                    renderer.Render();
+                    renderer.Render(stateFrame);
+                    imageNumber++;
+                    IntPtr consoleWindowHandle = GetConsoleWindow();
+                    var consoleWindowBitmap = ScreenCapture.CaptureWindow(consoleWindowHandle);
+                    var imageFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", $"Part1_{imageNumber.ToString("0000")}.png");
+                    consoleWindowBitmap.Save(imageFilePath, ImageFormat.Png);
                 }
             }
         }
