@@ -65,7 +65,7 @@ namespace AdventOfCode2019.Grid
 
         public override string ToString()
         {
-            return String.Format("GridPoint3D({0}, {1}, {2})", X, Y, Z);
+            return string.Format("GridPoint3D({0}, {1}, {2})", X, Y, Z);
         }
     }
 }

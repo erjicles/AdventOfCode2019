@@ -53,6 +53,12 @@ namespace AdventOfCode2019.Grid
                 Y = this.Y - d
             };
         }
+
+        public static bool GetAreAdjacent(GridPoint p1, GridPoint p2)
+        {
+            return GetManhattanDistance(p1, p2) == 1;
+        }
+
         /// <summary>
         /// Computes the manhattan distance between two points on the grid.
         /// </summary>
@@ -89,7 +95,7 @@ namespace AdventOfCode2019.Grid
 
         public override string ToString()
         {
-            return String.Format("GridPoint({0}, {1})", X, Y);
+            return string.Format("GridPoint({0}, {1})", X, Y);
         }
     }
 }
