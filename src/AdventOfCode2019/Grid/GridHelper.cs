@@ -7,6 +7,10 @@ namespace AdventOfCode2019.Grid
 {
     public static class GridHelper
     {
+        private static ConsoleColor GetPointColorDefault(GridPoint point)
+        {
+            return Console.ForegroundColor;
+        }
         public static void DrawGrid2D(
             ICollection<GridPoint> gridPoints,
             Func<GridPoint, string> GetPointString)
@@ -14,6 +18,20 @@ namespace AdventOfCode2019.Grid
             DrawGrid2D(
                 gridPoints: gridPoints,
                 GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
+                prependText: "     ",
+                invertY: false);
+        }
+
+        public static void DrawGrid2D(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor)
+        {
+            DrawGrid2D(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColor,
                 prependText: "     ",
                 invertY: false);
         }
@@ -26,6 +44,21 @@ namespace AdventOfCode2019.Grid
             DrawGrid2D(
                 gridPoints: gridPoints,
                 GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
+                prependText: appendText,
+                invertY: false);
+        }
+
+        public static void DrawGrid2D(
+            ICollection<GridPoint> gridPoints,
+            Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor,
+            string appendText)
+        {
+            DrawGrid2D(
+                gridPoints: gridPoints,
+                GetPointString: GetPointString,
+                GetPointColor: GetPointColor,
                 prependText: appendText,
                 invertY: false);
         }
@@ -38,6 +71,7 @@ namespace AdventOfCode2019.Grid
             DrawGrid2D(
                 gridPoints: gridPoints,
                 GetPointString: GetPointString,
+                GetPointColor: GetPointColorDefault,
                 prependText: "     ",
                 invertY: invertY);
         }
@@ -45,6 +79,7 @@ namespace AdventOfCode2019.Grid
         public static void DrawGrid2D(
             ICollection<GridPoint> gridPoints, 
             Func<GridPoint, string> GetPointString,
+            Func<GridPoint, ConsoleColor> GetPointColor,
             string prependText,
             bool invertY)
         {
@@ -66,7 +101,17 @@ namespace AdventOfCode2019.Grid
                 {
                     var point = new GridPoint(x, y);
                     var pointString = GetPointString(point);
+                    var oldColor = Console.ForegroundColor;
+                    var color = GetPointColor(point);
+                    if (!oldColor.Equals(color))
+                    {
+                        Console.ForegroundColor = color;
+                    }
                     Console.Write(pointString);
+                    if (!oldColor.Equals(color))
+                    {
+                        Console.ForegroundColor = oldColor;
+                    }
                 }
                 Console.WriteLine();
             }
