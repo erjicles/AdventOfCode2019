@@ -16,7 +16,7 @@ namespace AdventOfCode2019.Challenges.Day18
         public HashSet<string> Keys { get; private set; }
         public Dictionary<GridPoint, string> CellsWithDoors { get; private set; }
         public Dictionary<GridPoint, string> CellsWithKeys { get; private set; }
-        public GridPoint StartingPosition { get; private set; }
+        public IList<GridPoint> StartingPositions { get; private set; }
         public Graph<GridPoint> MazeGraph { get; private set; }
         /// <summary>
         /// Contains the initial shortest accessible path between each pair
@@ -37,10 +37,17 @@ namespace AdventOfCode2019.Challenges.Day18
         public Dictionary<Tuple<GridPoint, GridPoint>, HashSet<string>> KeysAlongShortestPathBetweenKeys { get; private set; }
         public Maze(IList<string> mazeDefinition)
         {
-            InitializeMaze(mazeDefinition);
+            InitializeMaze(mazeDefinition, false);
         }
 
-        private void InitializeMaze(IList<string> mazeDefinition)
+        public Maze(IList<string> mazeDefinition, bool makeQuadStartPositions)
+        {
+            InitializeMaze(mazeDefinition, makeQuadStartPositions);
+        }
+
+        private void InitializeMaze(
+            IList<string> mazeDefinition,
+            bool makeQuadStartPositions)
         {
             MazeCells = new Dictionary<GridPoint, MazeCell>();
             DoorCells = new Dictionary<string, GridPoint>();
@@ -48,6 +55,7 @@ namespace AdventOfCode2019.Challenges.Day18
             Keys = new HashSet<string>();
             CellsWithDoors = new Dictionary<GridPoint, string>();
             CellsWithKeys = new Dictionary<GridPoint, string>();
+            StartingPositions = new List<GridPoint>();
             for (int y = 0; y < mazeDefinition.Count; y++)
             {
                 var rowString = mazeDefinition[y];
@@ -63,7 +71,7 @@ namespace AdventOfCode2019.Challenges.Day18
                     }
                     else if ("@".Equals(cellDefinition))
                     {
-                        StartingPosition = point;
+                        StartingPositions.Add(point);
                     }
                     else if (Regex.IsMatch(cellDefinition, @"^[a-z]$"))
                     {
@@ -82,8 +90,60 @@ namespace AdventOfCode2019.Challenges.Day18
                 }
             }
 
+            if (makeQuadStartPositions)
+            {
+                MakeQuadStartingPositions();
+            }
+
             ConstructMazeGraph();
             ConstructShortestKeyToKeyPaths();
+        }
+
+        private void MakeQuadStartingPositions()
+        {
+            // Go from this:
+            // ...
+            // .@.
+            // ...
+            // to this:
+            // @#@
+            // ###
+            // @#@
+            for (int i = StartingPositions.Count-1; i >= 0; i--)
+            {
+                var startingPosition = StartingPositions[i];
+                // Check if this starting position's surroundings look like the above
+                var topLeft = startingPosition.MoveLeft(1).MoveUp(1);
+                var topCenter = startingPosition.MoveUp(1);
+                var topRight = startingPosition.MoveRight(1).MoveUp(1);
+                var left = startingPosition.MoveLeft(1);
+                var right = startingPosition.MoveRight(1);
+                var bottomLeft = startingPosition.MoveLeft(1).MoveDown(1);
+                var bottomCenter = startingPosition.MoveDown(1);
+                var bottomRight = startingPosition.MoveRight(1).MoveDown(1);
+                var candidates = new List<GridPoint>()
+                {
+                    topLeft, topCenter, topRight,
+                    left, right,
+                    bottomLeft, bottomCenter, bottomRight
+                };
+                bool startingPositionMeetsCriteria = candidates.All(c => 
+                    MazeCellType.Empty.Equals(MazeCells[c].Type)
+                    && !StartingPositions.Contains(c));
+                if (startingPositionMeetsCriteria)
+                {
+                    MazeCells[topCenter].SetType(MazeCellType.Wall);
+                    MazeCells[left].SetType(MazeCellType.Wall);
+                    MazeCells[startingPosition].SetType(MazeCellType.Wall);
+                    MazeCells[right].SetType(MazeCellType.Wall);
+                    MazeCells[bottomCenter].SetType(MazeCellType.Wall);
+                    StartingPositions.RemoveAt(i);
+                    StartingPositions.Add(topLeft);
+                    StartingPositions.Add(topRight);
+                    StartingPositions.Add(bottomLeft);
+                    StartingPositions.Add(bottomRight);
+                }
+            }
         }
 
         private void ConstructMazeGraph()
@@ -92,7 +152,7 @@ namespace AdventOfCode2019.Challenges.Day18
                 .ToList();
             graphNodes.AddRange(CellsWithKeys.Select(kvp => kvp.Key)
                 .ToList());
-            graphNodes.Add(StartingPosition);
+            graphNodes.AddRange(StartingPositions);
             EdgeShortestPaths = new Dictionary<Tuple<GridPoint, GridPoint>, IList<GridPoint>>();
             EdgeKeys = new Dictionary<Tuple<GridPoint, GridPoint>, HashSet<string>>();
             IList<GridPoint> GetShortestPathBetweenPoints(GridPoint p1, GridPoint p2)
@@ -133,7 +193,7 @@ namespace AdventOfCode2019.Challenges.Day18
             DoorsAlongShortestPathBetweenKeys = new Dictionary<Tuple<GridPoint, GridPoint>, HashSet<string>>();
             KeysAlongShortestPathBetweenKeys = new Dictionary<Tuple<GridPoint, GridPoint>, HashSet<string>>();
             var keyCells = Keys.Select(k => KeyCells[k]).ToList();
-            keyCells.Add(StartingPosition);
+            keyCells.AddRange(StartingPositions);
             for (int i = 0; i < keyCells.Count; i++)
             {
                 var startKeyCell = keyCells[i];

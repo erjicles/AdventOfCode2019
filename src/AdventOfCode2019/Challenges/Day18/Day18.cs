@@ -22,28 +22,48 @@ namespace AdventOfCode2019.Challenges.Day18
             // Answer: 3216
             var mazeDefinition = GetDay18Input();
             var maze = new Maze(mazeDefinition);
-            var initialMazeState = new MazeState(maze, maze.StartingPosition, new SortedDictionary<string, string>());
+            var initialMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>());
             initialMazeState.DrawMazeState();
-            //var neighbors = initialMazeState.GetNeighboringMazeStatesWithCosts();
-            //Console.WriteLine("Neighbording states and costs:");
-            //Console.WriteLine($"{string.Join("; ", neighbors.Select(n => GetNeighboringMazeStateString(n)))}");
-            //var shortestPath = GetShortestPathToCollectAllKeys(maze);
-            // var result = shortestPath.TotalPathCost;
-            var result = 3216;
+            var neighbors = initialMazeState.GetNeighboringMazeStatesWithCosts();
+            Console.WriteLine("Neighboring states and costs:");
+            Console.WriteLine($"{string.Join("; ", neighbors.Select(n => GetNeighboringMazeStateString(n)))}");
+            var shortestPath = GetShortestPathToCollectAllKeys(maze);
+            Console.WriteLine($"{MazeState.GetPathString(shortestPath.Path, false)}");
+            var result = shortestPath.TotalPathCost;
+            //var result = 3216;
             return result;
         }
 
-        public static string GetNeighboringMazeStateString(Tuple<MazeState, int> neighbor)
+        public static int GetDay18Part2Answer()
         {
-            return $"({neighbor.Item1}, {neighbor.Item2})";
+            // After updating your map and using the remote-controlled robots, 
+            // what is the fewest steps necessary to collect all of the keys?
+            // Answer: 1538
+            var mazeDefinition = GetDay18Input();
+            var maze = new Maze(mazeDefinition, true);
+            var initialMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>());
+            initialMazeState.DrawMazeState();
+            var neighbors = initialMazeState.GetNeighboringMazeStatesWithCosts();
+            Console.WriteLine("Neighboring states and costs:");
+            Console.WriteLine($"{string.Join("; ", neighbors.Select(n => GetNeighboringMazeStateString(n)))}");
+            var shortestPath = GetShortestPathToCollectAllKeys(maze);
+            Console.WriteLine($"{MazeState.GetPathString(shortestPath.Path, false)}");
+            var result = shortestPath.TotalPathCost;
+            return result;
+        }
+
+        public static string GetNeighboringMazeStateString(Tuple<MazeState, int, int> neighbor)
+        {
+            return $"({neighbor.Item1}, {neighbor.Item2}, Pos Index: {neighbor.Item3})";
         }
 
         public static PathResult<MazeState> GetShortestPathToCollectAllKeys(Maze maze)
         {
-            var initialMazeState = new MazeState(maze, maze.StartingPosition, new SortedDictionary<string, string>());
+            var initialMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>());
             var allKeysDictionary = maze.Keys.ToDictionary(k => k, k => k);
-            var finalMazeState = new MazeState(maze, maze.KeyCells.First().Value, new SortedDictionary<string, string>(allKeysDictionary));
+            var finalMazeState = new MazeState(maze, maze.StartingPositions, new SortedDictionary<string, string>(allKeysDictionary));
             var edgeCosts = new Dictionary<Tuple<string, string>, int>();
+            var edgePositionIndexes = new Dictionary<Tuple<string, string>, int>();
             int averageManhattanDistanceBetweenKeys = maze.GetAverageManhattanDistanceBetweenKeys();
             int sqrtOfTotalKeys = (int)Math.Sqrt(maze.Keys.Count);
 
@@ -59,7 +79,11 @@ namespace AdventOfCode2019.Challenges.Day18
                 var neighboringStatesWithCosts = mazeState.GetNeighboringMazeStatesWithCosts();
                 foreach (var neighboringStateWithCost in neighboringStatesWithCosts)
                 {
-                    var neighborKey = mazeState.Maze.CellsWithKeys[neighboringStateWithCost.Item1.CurrentPosition];
+                    // Get the new key reached by the position that moved
+                    // from the current state to this neighbor
+                    //var positionThatMovedIndex = neighboringStateWithCost.Item3;
+                    //var finalGridPointOfPositionThatMoved = neighboringStateWithCost.Item1.CurrentPositions[positionThatMovedIndex];
+                    //var neighborKey = mazeState.Maze.CellsWithKeys[finalGridPointOfPositionThatMoved];
 
                     var edgeKey = new Tuple<string, string>(
                         mazeState.MazeStateSignature,
@@ -70,6 +94,12 @@ namespace AdventOfCode2019.Challenges.Day18
                         edgeCosts.Add(edgeKey, int.MaxValue);
                     }
                     edgeCosts[edgeKey] = neighboringStateWithCost.Item2;
+
+                    if (!edgePositionIndexes.ContainsKey(edgeKey))
+                    {
+                        edgePositionIndexes.Add(edgeKey, 0);
+                    }
+                    edgePositionIndexes[edgeKey] = neighboringStateWithCost.Item3;
 
                     result.Add(neighboringStateWithCost.Item1);
                 }
