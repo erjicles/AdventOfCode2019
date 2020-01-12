@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2019.IO;
+using AdventOfCode2019.Solvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,37 +53,18 @@ namespace AdventOfCode2019.Challenges.Day14
             BigInteger inputQuantity,
             string output)
         {
-            // Keep trying output values until it generates the highest
-            // required input quantity without going over the provided amount.
-            BigInteger maxOutputQuantityThatWorked = 0;
-            BigInteger minOutputQuantityThatDidNotWork = int.MaxValue;
-            bool hasFoundMax = false;
-            BigInteger outputIncreaseAmount = inputQuantity;
-            BigInteger outputChangeFactor = 3;
-            while (!hasFoundMax)
+            bool GetDoesOutputQuantityRequireLessInputThanAvailable(BigInteger outputQuantityGuess)
             {
-                var outputQuantityToTry = maxOutputQuantityThatWorked 
-                    + outputIncreaseAmount;
-                var res = GetQuantityOfInputRequiredToGenerateOutput(
+                var guessInputQuantity = GetQuantityOfInputRequiredToGenerateOutput(
                     reactionDefinitions,
                     input,
                     output,
-                    outputQuantityToTry);
-                if (res.Item1 <= inputQuantity)
-                {
-                    maxOutputQuantityThatWorked = outputQuantityToTry;
-                }
-                else
-                {
-                    minOutputQuantityThatDidNotWork = outputQuantityToTry;
-                    outputIncreaseAmount = (BigInteger)Math.Ceiling(
-                        (double)outputIncreaseAmount / (double)outputChangeFactor);
-                }
-                if (minOutputQuantityThatDidNotWork - maxOutputQuantityThatWorked < 2)
-                    hasFoundMax = true;
+                    outputQuantityGuess);
+                return guessInputQuantity.Item1 <= inputQuantity;
             }
-
-            return maxOutputQuantityThatWorked;
+            var largestOutputQuantityRequiringLessInputThanAvailable = SandwichSolver.GetLargestInteger(
+                GetTestResult: GetDoesOutputQuantityRequireLessInputThanAvailable);
+            return largestOutputQuantityRequiringLessInputThanAvailable;
         }
 
         public static Tuple<BigInteger, IList<Tuple<string, BigInteger>>> GetQuantityOfInputRequiredToGenerateOutput(
