@@ -21,6 +21,18 @@ namespace AdventOfCode2019.Grid
             Y = y;
         }
 
+        public GridPoint Move(MovementDirection direction, int d)
+        {
+            return direction switch
+            {
+                MovementDirection.Down => MoveDown(d),
+                MovementDirection.Left => MoveLeft(d),
+                MovementDirection.Right => MoveRight(d),
+                MovementDirection.Up => MoveUp(d),
+                _ => throw new Exception($"Unknown movement direction {direction}"),
+            };
+        }
+
         public GridPoint MoveRight(int d)
         {
             return new GridPoint
