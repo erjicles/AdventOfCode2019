@@ -29,7 +29,7 @@ namespace AdventOfCode2019.Grid
                 MovementDirection.Left => MoveLeft(d),
                 MovementDirection.Right => MoveRight(d),
                 MovementDirection.Up => MoveUp(d),
-                _ => throw new Exception($"Unknown movement direction {direction}"),
+                _ => throw new Exception($"Invalid movement direction {direction}"),
             };
         }
 
@@ -100,7 +100,7 @@ namespace AdventOfCode2019.Grid
 
         public override int GetHashCode()
         {
-            var tuple = new Tuple<int, int>(X, Y);
+            var tuple = Tuple.Create(X, Y);
             int hash = tuple.GetHashCode();
             return hash;
         }
