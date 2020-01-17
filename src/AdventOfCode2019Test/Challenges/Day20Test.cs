@@ -9,7 +9,7 @@ namespace AdventOfCode2019Test.Challenges
     public class Day20Test
     {
         [Fact]
-        public void Wee()
+        public void GetShortestPathThroughMazeTest()
         {
             // Test examples taken from here:
             // https://adventofcode.com/2019/day/20
@@ -138,7 +138,7 @@ namespace AdventOfCode2019Test.Challenges
             });
             foreach (var testExample in testData)
             {
-                var maze = new Maze(testExample.Item1);
+                var maze = new DonutMaze(testExample.Item1);
                 var pathResult = Day20.GetShortestPathThroughMaze(maze);
                 Assert.Equal(testExample.Item2, pathResult.TotalPathCost);
             }
@@ -146,10 +146,109 @@ namespace AdventOfCode2019Test.Challenges
         }
 
         [Fact]
+        public void GetShortestPathThroughRecursiveMazeTest()
+        {
+            var testData = new List<Tuple<string[], int>>(new Tuple<string[], int>[] {
+                //             Z L X W       C                 
+                //             Z P Q B       K                 
+                //  ###########.#.#.#.#######.###############  
+                //  #...#.......#.#.......#.#.......#.#.#...#  
+                //  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  
+                //  #.#...#.#.#...#.#.#...#...#...#.#.......#  
+                //  #.###.#######.###.###.#.###.###.#.#######  
+                //  #...#.......#.#...#...#.............#...#  
+                //  #.#########.#######.#.#######.#######.###  
+                //  #...#.#    F       R I       Z    #.#.#.#  
+                //  #.###.#    D       E C       H    #.#.#.#  
+                //  #.#...#                           #...#.#  
+                //  #.###.#                           #.###.#  
+                //  #.#....OA                       WB..#.#..ZH
+                //  #.###.#                           #.#.#.#  
+                //CJ......#                           #.....#  
+                //  #######                           #######  
+                //  #.#....CK                         #......IC
+                //  #.###.#                           #.###.#  
+                //  #.....#                           #...#.#  
+                //  ###.###                           #.#.#.#  
+                //XF....#.#                         RF..#.#.#  
+                //  #####.#                           #######  
+                //  #......CJ                       NM..#...#  
+                //  ###.#.#                           #.###.#  
+                //RE....#.#                           #......RF
+                //  ###.###        X   X       L      #.#.#.#  
+                //  #.....#        F   Q       P      #.#.#.#  
+                //  ###.###########.###.#######.#########.###  
+                //  #.....#...#.....#.......#...#.....#.#...#  
+                //  #####.#.###.#######.#######.###.###.#.#.#  
+                //  #.......#.......#.#.#.#.#...#...#...#.#.#  
+                //  #####.###.#####.#.#.#.#.###.###.#.###.###  
+                //  #.......#.....#.#...#...............#...#  
+                //  #############.#.#.###.###################  
+                //               A O F   N                     
+                //               A A D   M                     
+                new Tuple<string[], int>(
+                    new string[]
+                    {
+                        "             Z L X W       C                 ",
+                        "             Z P Q B       K                 ",
+                        "  ###########.#.#.#.#######.###############  ",
+                        "  #...#.......#.#.......#.#.......#.#.#...#  ",
+                        "  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  ",
+                        "  #.#...#.#.#...#.#.#...#...#...#.#.......#  ",
+                        "  #.###.#######.###.###.#.###.###.#.#######  ",
+                        "  #...#.......#.#...#...#.............#...#  ",
+                        "  #.#########.#######.#.#######.#######.###  ",
+                        "  #...#.#    F       R I       Z    #.#.#.#  ",
+                        "  #.###.#    D       E C       H    #.#.#.#  ",
+                        "  #.#...#                           #...#.#  ",
+                        "  #.###.#                           #.###.#  ",
+                        "  #.#....OA                       WB..#.#..ZH",
+                        "  #.###.#                           #.#.#.#  ",
+                        "CJ......#                           #.....#  ",
+                        "  #######                           #######  ",
+                        "  #.#....CK                         #......IC",
+                        "  #.###.#                           #.###.#  ",
+                        "  #.....#                           #...#.#  ",
+                        "  ###.###                           #.#.#.#  ",
+                        "XF....#.#                         RF..#.#.#  ",
+                        "  #####.#                           #######  ",
+                        "  #......CJ                       NM..#...#  ",
+                        "  ###.#.#                           #.###.#  ",
+                        "RE....#.#                           #......RF",
+                        "  ###.###        X   X       L      #.#.#.#  ",
+                        "  #.....#        F   Q       P      #.#.#.#  ",
+                        "  ###.###########.###.#######.#########.###  ",
+                        "  #.....#...#.....#.......#...#.....#.#...#  ",
+                        "  #####.#.###.#######.#######.###.###.#.#.#  ",
+                        "  #.......#.......#.#.#.#.#...#...#...#.#.#  ",
+                        "  #####.###.#####.#.#.#.#.###.###.#.###.###  ",
+                        "  #.......#.....#.#...#...............#...#  ",
+                        "  #############.#.#.###.###################  ",
+                        "               A O F   N                     ",
+                        "               A A D   M                     ",
+                    }, 396),
+            });
+            foreach (var testExample in testData)
+            {
+                var maze = new DonutMaze(testExample.Item1, isRecursive: true);
+                var pathResult = Day20.GetShortestPathThroughMaze(maze);
+                Assert.Equal(testExample.Item2, pathResult.TotalPathCost);
+            }
+        }
+
+        [Fact]
         public void GetDay20Part1AnswerTest()
         {
             int expected = 588;
             int actual = Day20.GetDay20Part1Answer();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GetDay20Part2AnswerTest()
+        {
+            int expected = 6834;
+            int actual = Day20.GetDay20Part2Answer();
             Assert.Equal(expected, actual);
         }
     }

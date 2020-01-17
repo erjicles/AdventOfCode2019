@@ -16,25 +16,43 @@ namespace AdventOfCode2019.Challenges.Day20
         public const string FILE_NAME = "Day20Input.txt";
         public static int GetDay20Part1Answer()
         {
+            // In your maze, how many steps does it take to get from the open 
+            // tile marked AA to the open tile marked ZZ?
+            // Answer: 588
             var mazeDefinition = GetDay20Input();
-            var maze = new Maze(mazeDefinition);
+            var maze = new DonutMaze(mazeDefinition);
             maze.DrawMaze();
             var pathResult = GetShortestPathThroughMaze(maze);
             return pathResult.TotalPathCost;
         }
 
-        public static PathResult<GridPoint> GetShortestPathThroughMaze(Maze maze)
+        public static int GetDay20Part2Answer()
         {
-            int Heuristic(GridPoint point)
+            // In your maze, when accounting for recursion, how many steps 
+            // does it take to get from the open tile marked AA to the open 
+            // tile marked ZZ, both at the outermost layer?
+            // Answer: 6834
+            var mazeDefinition = GetDay20Input();
+            var maze = new DonutMaze(mazeDefinition, isRecursive: true);
+            maze.DrawMaze();
+            var pathResult = GetShortestPathThroughMaze(maze);
+            return pathResult.TotalPathCost;
+        }
+
+        public static PathResult<GridPoint3D> GetShortestPathThroughMaze(DonutMaze maze)
+        {
+            int Heuristic(GridPoint3D point)
             {
                 // We can no longer use a heuristic because the portals make
                 // it so that the manhattan distance can overestimate the
                 // remaining distance.
                 // TODO: Use the distance to the closest portal OR to the
                 // finish instead (whichever is closer)
-                return 0;
+                if (!maze.IsRecursive)
+                    return 0;
+                return point.Z;
             }
-            int GetEdgeCost(GridPoint p1, GridPoint p2)
+            int GetEdgeCost(GridPoint3D p1, GridPoint3D p2)
             {
                 return 1;
             }

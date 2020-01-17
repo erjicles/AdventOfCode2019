@@ -5,37 +5,37 @@ using System.Text;
 
 namespace AdventOfCode2019.Challenges.Day20
 {
-    public class MazeCell
+    public class DonutMazeCell
     {
         public GridPoint Position { get; private set; }
-        public MazeCellType Type { get; private set; }
+        public DonutMazeCellType Type { get; private set; }
         public string PortalLetter { get; set; }
-        public MazeCell(GridPoint position, MazeCellType type, string portalLetter)
+        public DonutMazeCell(GridPoint position, DonutMazeCellType type, string portalLetter)
         {
             Initialize(position, type, portalLetter);
         }
 
-        private void Initialize(GridPoint position, MazeCellType type, string portalLetter)
+        private void Initialize(GridPoint position, DonutMazeCellType type, string portalLetter)
         {
             Position = position;
             Type = type;
             PortalLetter = portalLetter;
         }
 
-        public static string GetCellString(MazeCell cell)
+        public static string GetCellString(DonutMazeCell cell)
         {
-            if (MazeCellType.Empty.Equals(cell.Type))
+            if (DonutMazeCellType.Empty.Equals(cell.Type))
                 return ".";
-            if (MazeCellType.Wall.Equals(cell.Type))
+            if (DonutMazeCellType.Wall.Equals(cell.Type))
                 return "#";
-            if (MazeCellType.Portal.Equals(cell.Type))
+            if (DonutMazeCellType.Portal.Equals(cell.Type))
                 return cell.PortalLetter;
             return " ";
         }
 
         public override string ToString()
         {
-            return $"[({Position.X}, {Position.Y}), {Type}]";
+            return $"[({Position.X}, {Position.Y}) {Type}]";
         }
     }
 }
