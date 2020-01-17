@@ -23,6 +23,8 @@ namespace AdventOfCode2019.Challenges.Day20
             var maze = new DonutMaze(mazeDefinition);
             maze.DrawMaze();
             var pathResult = GetShortestPathThroughMaze(maze);
+            var pathString = GetPathString(pathResult, maze);
+            Console.WriteLine(pathString);
             return pathResult.TotalPathCost;
         }
 
@@ -36,7 +38,26 @@ namespace AdventOfCode2019.Challenges.Day20
             var maze = new DonutMaze(mazeDefinition, isRecursive: true);
             maze.DrawMaze();
             var pathResult = GetShortestPathThroughMaze(maze);
+            var pathString = GetPathString(pathResult, maze);
+            Console.WriteLine(pathString);
             return pathResult.TotalPathCost;
+        }
+
+        public static string GetPathString(PathResult<GridPoint3D> pathResult, DonutMaze maze)
+        {
+            var result = new StringBuilder();
+            int stepCount = 0;
+            foreach (var currentPoint in pathResult.Path)
+            {
+                if (maze.PortalCells.ContainsKey(currentPoint.XYPoint))
+                {
+                    if (result.Length > 0)
+                        result.Append(" ---> ");
+                    result.Append($"({maze.PortalCells[currentPoint.XYPoint]}, Level: {currentPoint.Z}, Total steps: {stepCount})");
+                }
+                stepCount++;
+            }
+            return result.ToString();
         }
 
         public static PathResult<GridPoint3D> GetShortestPathThroughMaze(DonutMaze maze)
