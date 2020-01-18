@@ -20,6 +20,7 @@ using AdventOfCode2019.Challenges.Day17;
 using AdventOfCode2019.Challenges.Day18;
 using AdventOfCode2019.Challenges.Day19;
 using AdventOfCode2019.Challenges.Day20;
+using AdventOfCode2019.Challenges.Day21;
 
 namespace AdventOfCode2019
 {
@@ -34,7 +35,7 @@ namespace AdventOfCode2019
             // Day 2
             Console.WriteLine($"Day 2 - Part 1: {Day02.GetDay2Part1Answer()}");
             Console.WriteLine($"Day 2 - Part 2: {Day02.GetDay2Part2Answer()}");
-            // Day 3
+            // Day 3.
             Console.WriteLine($"Day 3 - Part 1: {Day03.GetDay3Part1Answer()}");
             Console.WriteLine($"Day 3 - Part 2: {Day03.GetDay3Part2Answer()}");
             // Day 4
@@ -88,9 +89,11 @@ namespace AdventOfCode2019
             // Day 19
             Console.WriteLine($"Day 19 - Part 1: {Day19.GetDay19Part1Answer()}");
             Console.WriteLine($"Day 19 - Part 2: {Day19.GetDay19Part2Answer()}");
-            // Day 19
+            // Day 20
             Console.WriteLine($"Day 20 - Part 1: {Day20.GetDay20Part1Answer()}");
             Console.WriteLine($"Day 20 - Part 2: {Day20.GetDay20Part2Answer()}");
+            // Day 21
+            Console.WriteLine($"Day 21 - Part 1: {Day21.GetDay21Part1Answer()}");
         }
     }
 }
