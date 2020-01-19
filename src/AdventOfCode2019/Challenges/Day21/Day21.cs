@@ -31,10 +31,8 @@ namespace AdventOfCode2019.Challenges.Day21
             computer.LoadProgram(program);
 
             // Define the robot instructions
-            // 1) Always jump if A is a hole
-            // 2) Otherwise, jump if a hole is detected
-            //    AND D is ground
-            // Try: Jump only if any of A, B, or C are holes
+            // Note - a jump will land 4 spaces ahead
+            // Jump only if any of A, B, or C are holes
             // AND D is not a hole
             // ->
             // NOT A J <- JUMP is true if A is a hole
@@ -72,14 +70,74 @@ namespace AdventOfCode2019.Challenges.Day21
             return result;
         }
 
+        public static BigInteger GetDay21Part2Answer()
+        {
+            // Successfully survey the rest of the hull by ending your program 
+            // with RUN. What amount of hull damage does the springdroid now 
+            // report?
+            // Answer: 1140450681
+            BigInteger result = 0;
+            Console.WriteLine("Starting Day 21 - Part 2...");
+            var program = GetDay21Input();
+            var inputProvider = new BufferedInputProvider();
+            var outputListener = new ListOutputListener();
+            var computer = new IntcodeComputer(inputProvider, outputListener);
+            computer.LoadProgram(program);
+
+            // Define the robot instructions
+            // Note - a jump will still land 4 spaces ahead
+            // Jump if:
+            // There is a hole in A, B, or C
+            // And D is not a hole
+            // And (H OR (E AND (I OR F)))
+            // OR A J  |\
+            // AND B J | | A, B, or C is a hole: !(A AND B AND C)
+            // AND C J | |
+            // NOT J J |/
+            // AND D J | AND D is a block
+            // OR F T  |\ (I OR F)
+            // OR I T  |/
+            // AND E T | E AND (I OR F)
+            // OR H T  | H OR (E AND (I OR F))
+            // AND T J | final
+            var robotInstructions = new List<string>()
+            {
+                "OR A J ",
+                "AND B J",
+                "AND C J",
+                "NOT J J",
+                "AND D J",
+                "OR F T ",
+                "OR I T ",
+                "AND E T",
+                "OR H T ",
+                "AND T J",
+                "RUN"
+            };
+            var robotInstructionAsciiInput = GetRobotInstructionAsciiInputValues(robotInstructions);
+            inputProvider.Values.AddRange(robotInstructionAsciiInput);
+
+            computer.RunProgram();
+            // If the robot successfully made it across, then the last output
+            // value will be a large non-ascii character
+            if (outputListener.Values.Count > 0 && outputListener.Values.Last() > 255)
+            {
+                result = outputListener.Values.Last();
+                outputListener.Values.RemoveAt(outputListener.Values.Count - 1);
+            }
+            IntcodeComputerHelper.DrawAsciiOutput(outputListener.Values);
+            return result;
+        }
+
         public static IList<BigInteger> GetRobotInstructionAsciiInputValues(IList<string> robotInstructions)
         {
             var result = new List<BigInteger>();
             foreach (var instruction in robotInstructions)
             {
-                for (int i = 0; i < instruction.Length; i++)
+                var trimmedInstruction = instruction.Trim();
+                for (int i = 0; i < trimmedInstruction.Length; i++)
                 {
-                    result.Add(char.ConvertToUtf32(instruction, i));
+                    result.Add(char.ConvertToUtf32(trimmedInstruction, i));
                 }
                 result.Add(10);
             }
