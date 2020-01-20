@@ -16,5 +16,13 @@ namespace AdventOfCode2019Test.Challenges
             BigInteger actual = Day23.GetDay23Part1Answer();
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void GetDay23Part2AnswerTest()
+        {
+            BigInteger expected = 19641;
+            BigInteger actual = Day23.GetDay23Part2Answer();
+            Assert.Equal(expected, actual);
+        }
     }
 }
