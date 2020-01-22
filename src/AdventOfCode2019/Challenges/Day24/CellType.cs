@@ -7,6 +7,7 @@ namespace AdventOfCode2019.Challenges.Day24
     public enum CellType
     {
         Empty,
-        Bug
+        Bug,
+        NestedGrid
     }
 }

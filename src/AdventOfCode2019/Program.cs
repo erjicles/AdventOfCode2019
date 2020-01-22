@@ -106,6 +106,8 @@ namespace AdventOfCode2019
             Console.WriteLine($"Day 23 - Part 2: {Day23.GetDay23Part2Answer()}");
             // Day 24
             Console.WriteLine($"Day 24 - Part 1: {Day24.GetDay24Part1Answer()}");
+            Console.WriteLine($"Day 24 - Part 2 Test: {Day24.GetDay24Part2AnswerTest()}");
+            Console.WriteLine($"Day 24 - Part 2: {Day24.GetDay24Part2Answer()}");
         }
     }
 }

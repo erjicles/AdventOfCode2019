@@ -214,6 +214,8 @@ namespace AdventOfCode2019.Grid
             {
                 int z = zStart + (zIndex * zDirection);
                 builder.Append(Environment.NewLine);
+                builder.Append(prependText + $"Z: {z}");
+                builder.Append(Environment.NewLine);
                 
                 for (int yIndex = 0; yIndex <= yDiff; yIndex++)
                 {

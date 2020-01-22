@@ -9,25 +9,47 @@ namespace AdventOfCode2019.Challenges.Day24
 {
     public class ErisMapState
     {
-        public Dictionary<GridPoint, CellType> GridCells { get; private set; }
+        public Dictionary<GridPoint3D, CellType> GridCells { get; private set; }
+        public bool IsRecursive { get; private set; }
+        public GridPoint CenterPointXY { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int MinZ { get; private set; }
+        public int MaxZ { get; private set; }
         private string _signature;
-        public ErisMapState(Dictionary<GridPoint, CellType> gridCells)
+        public ErisMapState(
+            Dictionary<GridPoint3D, CellType> gridCells,
+            int width,
+            int height,
+            int minZ,
+            int maxZ,
+            bool isRecursive)
         {
             GridCells = gridCells.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            IsRecursive = isRecursive;
+            Width = width;
+            Height = height;
+            MinZ = minZ;
+            MaxZ = maxZ;
+            CenterPointXY = new GridPoint((Width - 1)/2, (Height - 1)/2);
             _signature = string.Join("", GetMapRenderingData()
                 .Select(t => t.Item1));
         }
 
-        public static ErisMapState CreateMap(IList<string> mapDefinition)
+        public static ErisMapState CreateMap(
+            IList<string> mapDefinition,
+            bool isRecursive)
         {
-            var gridCells = new Dictionary<GridPoint, CellType>();
+            int height = mapDefinition.Count;
+            int width = mapDefinition.Max(row => row.Length);
+            var gridCells = new Dictionary<GridPoint3D, CellType>();
             for (int y = 0; y < mapDefinition.Count; y++)
             {
                 var rowDefinition = mapDefinition[y];
                 for (int x = 0; x < rowDefinition.Length; x++)
                 {
                     var cellDefinition = rowDefinition[x];
-                    var point = new GridPoint(x, y);
+                    var point = new GridPoint3D(x, y, 0);
                     CellType cellType = cellDefinition switch
                     {
                         '.' => CellType.Empty,
@@ -37,11 +59,35 @@ namespace AdventOfCode2019.Challenges.Day24
                     gridCells.Add(point, cellType);
                 }
             }
-            var result = new ErisMapState(gridCells);
+            // If it's recursive, then the middle point is the recursive cell
+            // containing the nested grids
+            if (isRecursive)
+            {
+               var middlePoint = new GridPoint3D(
+                   x: (width - 1) / 2, 
+                   y: (height - 1) / 2, 
+                   z: 0);
+                gridCells[middlePoint] = CellType.NestedGrid;
+            }
+            var result = new ErisMapState(
+                gridCells: gridCells, 
+                width: width, 
+                height: height, 
+                minZ: 0,
+                maxZ: 0,
+                isRecursive: isRecursive);
             return result;
         }
 
-        public BigInteger GetBiodiversityRating()
+        public BigInteger GetTotalNumberOfBugs()
+        {
+            var numberOfBugs = GridCells
+                .Where(kvp => CellType.Bug.Equals(kvp.Value))
+                .Count();
+            return numberOfBugs;
+        }
+
+        public BigInteger GetBiodiversityRating(int layer)
         {
             int minX = 0;
             int maxX = GridCells.Max(kvp => kvp.Key.X);
@@ -53,7 +99,7 @@ namespace AdventOfCode2019.Challenges.Day24
             {
                 for (int x = minX; x <= maxX; x++)
                 {
-                    var point = new GridPoint(x, y);
+                    var point = new GridPoint3D(x, y, layer);
                     if (GridCells.ContainsKey(point))
                     {
                         var cellType = GridCells[point];
@@ -70,8 +116,12 @@ namespace AdventOfCode2019.Challenges.Day24
 
         public ErisMapState Evolve()
         {
-            var gridCells = new Dictionary<GridPoint, CellType>();
-            var cellStatuses = new Dictionary<GridPoint, CellStatus>();
+            var gridCells = new Dictionary<GridPoint3D, CellType>();
+            var cellStatuses = new Dictionary<GridPoint3D, CellStatus>();
+
+            // Add new layers as needed
+            ExpandMap();
+
             foreach (var kvp in GridCells)
             {
                 var point = kvp.Key;
@@ -101,10 +151,64 @@ namespace AdventOfCode2019.Challenges.Day24
                     gridCells[point] = CellType.Empty;
                 }
             }
-            return new ErisMapState(gridCells);
+            return new ErisMapState(
+                gridCells: gridCells, 
+                width: Width, 
+                height: Height, 
+                minZ: MinZ,
+                maxZ: MaxZ,
+                isRecursive: IsRecursive);
         }
 
-        public CellStatus GetCellStatus(GridPoint point)
+        private void ExpandMap()
+        {
+            // Add new layers if needed
+            // Add a new inner layer *if* the innermost layer's middle cell
+            // has a neighbor with a bug
+            var innermostMiddlePoint = new GridPoint3D(CenterPointXY, MaxZ);
+            var innermostMiddlePointStatus = GetCellStatus(innermostMiddlePoint);
+            if (innermostMiddlePointStatus.NumberOfBugNeighbors > 0)
+            {
+                AddLayer(MaxZ + 1);
+            }
+
+            // Add a new outer layer *if* the outermost layer has any outer
+            // cells with bugs
+            int outermostLayerOutermostCellsBugCount = GridCells
+                .Where(kvp => kvp.Key.Z == MinZ
+                    && CellType.Bug.Equals(kvp.Value)
+                    && GetIsOuterPoint(kvp.Key))
+                .Count();
+            if (outermostLayerOutermostCellsBugCount > 0)
+            {
+                AddLayer(MinZ - 1);
+            }
+        }
+
+        private void AddLayer(int z)
+        {
+            if (z <= MaxZ && z >= MinZ)
+                throw new Exception($"Layer already exists: {z}");
+            if (z > MaxZ)
+                MaxZ = z;
+            else
+                MinZ = z;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var point = new GridPoint3D(x, y, z);
+                    GridCells.Add(point, CellType.Empty);
+                    if (IsRecursive &&
+                        point.XYPoint.Equals(CenterPointXY))
+                    {
+                        GridCells[point] = CellType.NestedGrid;
+                    }
+                }
+            }
+        }
+
+        public CellStatus GetCellStatus(GridPoint3D point)
         {
             var neighbors = GetNeighbors(point);
             int numberOfEmptyNeighbors = 0;
@@ -133,18 +237,56 @@ namespace AdventOfCode2019.Challenges.Day24
             return result;
         }
 
-        public static IList<GridPoint> GetNeighbors(GridPoint point)
+        public IList<GridPoint3D> GetNeighbors(GridPoint3D point)
         {
-            return new List<GridPoint>()
+            var result = new List<GridPoint3D>();
+            var directions = new List<MovementDirection>()
             {
-                point.MoveLeft(1),
-                point.MoveUp(1),
-                point.MoveRight(1),
-                point.MoveDown(1)
+                MovementDirection.Left,
+                MovementDirection.Right,
+                MovementDirection.Up,
+                MovementDirection.Down
             };
+            foreach (var direction in directions)
+            {
+                var neighbor = point.Move(direction, 1);
+                if (!IsRecursive)
+                {
+                    result.Add(neighbor);
+                }
+                else // Recursive map
+                {
+                    // Check if the neighbor is the middle point
+                    if (neighbor.XYPoint.Equals(CenterPointXY))
+                    {
+                        // Get the outer cells adjacent to this one in the
+                        // inner layer
+                        var oppositeDirection = MovementDirectionHelper.GetOppositeDirection(direction);
+                        var innerLayerOuterCells = GridCells
+                            .Where(kvp => kvp.Key.Z == point.Z + 1)
+                            .Where(kvp => GetIsOnSide(kvp.Key, oppositeDirection))
+                            .Select(kvp => kvp.Key)
+                            .ToList();
+                        result.AddRange(innerLayerOuterCells);
+                    }
+                    // Check if the neighbor is off the map
+                    else if (GetIsPointOffMap(neighbor))
+                    {
+                        // Get the adjacent cell to the center in the outer layer
+                        var outerLayerCenterCell = new GridPoint3D(CenterPointXY, point.Z - 1);
+                        neighbor = outerLayerCenterCell.Move(direction, 1);
+                        result.Add(neighbor);
+                    }
+                    else
+                    {
+                        result.Add(neighbor);
+                    }
+                }
+            }
+            return result;
         }
 
-        public string GetCellString(GridPoint point)
+        public string GetCellString(GridPoint3D point)
         {
             if (!GridCells.ContainsKey(point))
                 return " ";
@@ -152,20 +294,62 @@ namespace AdventOfCode2019.Challenges.Day24
             {
                 CellType.Empty => ".",
                 CellType.Bug => "#",
+                CellType.NestedGrid => "?",
                 _ => " ",
             };
         }
 
+        public bool GetIsOnSide(GridPoint3D point, MovementDirection side)
+        {
+            // Note - because "up" increases Y, whereas the top is at 0 and
+            // increasing y goes down,
+            // we need to invert the meaning of Up and Down here
+            return side switch
+            {
+                MovementDirection.Left => point.X == 0,
+                MovementDirection.Right => point.X == Width - 1,
+                MovementDirection.Down => point.Y == 0,
+                MovementDirection.Up => point.Y == Height - 1,
+                _ => throw new Exception($"Invalid side {side}"),
+            };
+        }
+
+        public bool GetIsOuterPoint(GridPoint3D point)
+        {
+            if (point.X == 0)
+                return true;
+            if (point.Y == 0)
+                return true;
+            if (point.X == Width - 1)
+                return true;
+            if (point.Y == Height - 1)
+                return true;
+            return false;
+        }
+
+        public bool GetIsPointOffMap(GridPoint3D point)
+        {
+            if (point.X < 0)
+                return true;
+            if (point.Y < 0)
+                return true;
+            if (point.X >= Width)
+                return true;
+            if (point.Y >= Height)
+                return true;
+            return false;
+        }
+
         public void DrawMapState()
         {
-            GridHelper.DrawGrid2D(
+            GridHelper3D.DrawGrid3D(
                 gridPoints: GridCells.Select(kvp => kvp.Key).ToList(),
                 GetPointString: GetCellString);
         }
 
         public IList<Tuple<string, ConsoleColor>> GetMapRenderingData()
         {
-            return GridHelper.GetGridRenderingData(
+            return GridHelper3D.GetGridRenderingData(
                 gridPoints: GridCells.Select(kvp => kvp.Key).ToList(),
                 GetPointString: GetCellString);
         }
