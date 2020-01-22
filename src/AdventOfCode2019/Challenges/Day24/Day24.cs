@@ -57,7 +57,7 @@ namespace AdventOfCode2019.Challenges.Day24
             }
             Console.WriteLine($"...after 200 minute(s):");
             currentState.DrawMapState();
-            var result = currentState.GetTotalNumberOfBugs();
+            var result = currentState.BugCells.Count;
             return result;
         }
 
@@ -80,7 +80,7 @@ namespace AdventOfCode2019.Challenges.Day24
             }
             Console.WriteLine($"...after 10 minute(s):");
             map.DrawMapState();
-            var result = map.GetTotalNumberOfBugs();
+            var result = map.BugCells.Count;
             return result;
         }
 
