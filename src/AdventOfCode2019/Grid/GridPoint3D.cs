@@ -10,6 +10,7 @@ namespace AdventOfCode2019.Grid
         public int Y { get; set; }
         public int Z { get; set; }
         public GridPoint XYPoint { get { return new GridPoint(X, Y); } }
+        public static GridPoint3D Origin = new GridPoint3D(0, 0, 0);
 
         public GridPoint3D()
         {

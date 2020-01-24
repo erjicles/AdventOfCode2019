@@ -16,7 +16,7 @@ namespace AdventOfCode2019.Challenges.Day24
         public int Height { get; private set; }
         public int MinZ { get; private set; }
         public int MaxZ { get; private set; }
-        private string _signature;
+        public string Signature { get; private set; }
         public ErisMapState(
             HashSet<GridPoint3D> bugCells,
             int width,
@@ -32,8 +32,7 @@ namespace AdventOfCode2019.Challenges.Day24
             MinZ = minZ;
             MaxZ = maxZ;
             CenterPointXY = new GridPoint((Width - 1)/2, (Height - 1)/2);
-            _signature = string.Join("", GetMapRenderingData()
-                .Select(t => t.Item1));
+            Signature = GetSignature();
         }
 
         public static ErisMapState CreateMap(
@@ -354,8 +353,26 @@ namespace AdventOfCode2019.Challenges.Day24
 
         public override int GetHashCode()
         {
-            var hash = _signature.GetHashCode();
+            var hash = Signature.GetHashCode();
             return hash;
+        }
+
+        public string GetSignature()
+        {
+            var builder = new StringBuilder();
+            for (int z = MinZ; z <= MaxZ; z++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int x = 0; x < Width; x++)
+                    {
+                        var point = new GridPoint3D(x, y, z);
+                        if (BugCells.Contains(point))
+                            builder.Append(point.ToString());
+                    }
+                }
+            }
+            return builder.ToString();
         }
     }
 }

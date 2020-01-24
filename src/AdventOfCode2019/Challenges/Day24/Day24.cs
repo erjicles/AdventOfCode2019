@@ -56,7 +56,7 @@ namespace AdventOfCode2019.Challenges.Day24
                 Console.Write($" ---> [Minutes: {loopCount + 1}, MinZ: {currentState.MinZ}, MaxZ: {currentState.MaxZ}]");
             }
             Console.WriteLine($"...after 200 minute(s):");
-            currentState.DrawMapState();
+            //currentState.DrawMapState();
             var result = currentState.BugCells.Count;
             return result;
         }

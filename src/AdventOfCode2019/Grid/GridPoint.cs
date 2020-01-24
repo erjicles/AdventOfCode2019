@@ -8,6 +8,7 @@ namespace AdventOfCode2019.Grid
     {
         public int X { get; set; }
         public int Y { get; set; }
+        public static GridPoint Origin = new GridPoint(0, 0);
 
         public GridPoint()
         {
@@ -64,6 +65,24 @@ namespace AdventOfCode2019.Grid
                 X = this.X,
                 Y = this.Y - d
             };
+        }
+
+        public static MovementDirection GetMovementDirectionForAdjacentPoints(
+            GridPoint startPoint,
+            GridPoint endPoint,
+            bool invertY = false)
+        {
+            if (!GetAreAdjacent(startPoint, endPoint))
+                throw new Exception("Points are not adjacent");
+            if (endPoint.X > startPoint.X)
+                return MovementDirection.Right;
+            if (endPoint.X < startPoint.X)
+                return MovementDirection.Left;
+            if (endPoint.Y > startPoint.Y)
+                return invertY ? MovementDirection.Down : MovementDirection.Up;
+            if (endPoint.Y < startPoint.Y)
+                return invertY ? MovementDirection.Up : MovementDirection.Down;
+            throw new Exception("Invalid state");
         }
 
         public static bool GetAreAdjacent(GridPoint p1, GridPoint p2)
