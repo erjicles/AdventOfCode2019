@@ -8,3 +8,5 @@ daily coding challenges from
 * IDE: Visual Studio 2019 16.4+
 * Project Type: Windows Console Application (C#)
 * .NET Version: .NET Core 3.1
+
+![Screenshot of congratulations for finishing!](https://github.com/erjicles/AdventOfCode2019/blob/dev/AdventOfCode2019Complete.PNG "Finished!")
